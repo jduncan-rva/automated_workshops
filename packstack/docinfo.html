@@ -1,0 +1,19 @@
+<style>
+/* disable the default striping of rows */
+table tr.even, table tr.alt, table tr:nth-of-type(even) {
+  background: none
+}
+/* stripe even rows only when the "striped" CSS class is used */
+table.striped tr.even, table.striped tr.alt, table.striped tr:nth-of-type(even) {
+  background: #dfdfde;
+}
+
+table.striped thead tr th {
+  background: #990000;
+  color: #cccccc;
+  font-weight:bold;
+  text-align:center;
+  vertical-align: middle;
+}
+
+</style>

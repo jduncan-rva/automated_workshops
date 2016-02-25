@@ -1,0 +1,17 @@
+:toc: left
+:icons:
+:iconsdir: http://people.redhat.com/~jduncan/images/icons
+:imagesdir: http://people.redhat.com/~jduncan/images
+:toc-title: Agenda
+:toclevels: 3
+:sectnums:
+:last-update-label: Property of Red Hat, Inc.  For Internal Publication Only.  Last Updated:
+:source-highlighter: prettify
+:docinfo1:
+
+= OpenStack PackStack Workshop
+Jamie Duncan <jduncan@redhat.com>
+
+include::packstack_install.adoc[]
+
+include::packstack_lab.ado[]

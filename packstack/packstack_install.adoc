@@ -1,0 +1,503 @@
+== PackStack Installation
+
+=== Defined Roles
+
+For this PackStack installation we will be defining 2 'roles' for our systems:
+
+****
+*Controller Node*
+
+This system will handle the packstack install and run all OpenStack services except for Nova. It will essentially be the 'brain' for our PackStack cloud.
+****
+
+****
+*Compute Nodes*
+
+The compute nodes (2 in this example, but the number can be much higher) run nova-compute and any additional client services to allow it to host guest instances.
+****
+
+=== Install Walkthrough
+
+[IMPORTANT]
+These steps must be completed on all hosts
+
+[source,bash]
+.register each system
+----
+[root@dell-r-430-13 ~]# subscription-manager register --username=rhn-support-jduncan
+Registering to: subscription.rhn.redhat.com:443/subscription
+Password:
+The system has been registered with ID: e69c29de-b537-4464-9a82-f523169fbcb2
+----
+
+[source,bash]
+.assign the proper RHEL entilements
+----
+[root@dell-r-430-13 ~]# subscription-manager attach --pool=8a85f9833e1404a9013e3cddf95a0599
+Successfully attached a subscription for: Employee SKU
+----
+
+[TIP]
+For this example, we are using the RHEL Employee SKU
+
+[source,bash]
+.attach the proper repositories
+----
+[root@dell-r-430-13 ~]# subscription-manager repos --disable=\* \
+--enable=rhel-7-server-rpms \
+--enable=rhel-7-server-optional-rpms \
+--enable=rhel-7-server-extras-rpms
+Repository 'rh-gluster-3-nagios-for-rhel-7-server-debug-rpms' is disabled for this system.
+Repository 'rhel-7-server-ose-3.0-source-rpms' is disabled for this system.
+Repository 'rhel-7-server-v2vwin-1-debug-rpms' is disabled for this system.
+Repository 'rhel-7-server-rhceph-1.2-mon-rpms' is disabled for this system.
+...
+Repository 'rhel-7-server-optional-source-rpms' is disabled for this system.
+Repository 'rh-gluster-3-splunk-for-rhel-7-server-rpms' is disabled for this system.
+Repository 'rhel-7-server-rhevh-beta-rpms' is disabled for this system.
+Repository 'rhel-7-server-rhceph-1.3-mon-debug-rpms' is disabled for this system.
+----
+
+[source,bash]
+.enable EPEL so we can get RDO bits
+----
+[root@dell-r-430-13 ~]# yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm -y
+Loaded plugins: product-id, search-disabled-repos, subscription-manager
+epel-release-latest-7.noarch.rpm                                          |  14 kB  00:00:00
+Examining /var/tmp/yum-root-DvCQn7/epel-release-latest-7.noarch.rpm: epel-release-7-5.noarch
+Marking /var/tmp/yum-root-DvCQn7/epel-release-latest-7.noarch.rpm to be installed
+Resolving Dependencies
+--> Running transaction check
+---> Package epel-release.noarch 0:7-5 will be installed
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+===========================================================================================
+ Package               Arch         Version        Repository                        Size
+ ==========================================================================================
+Installing:
+ epel-release          noarch       7-5            /epel-release-latest-7.noarch     24 k
+
+Transaction Summary
+===========================================================================================
+Install  1 Package
+
+Total size: 24 k
+Installed size: 24 k
+Downloading packages:
+Running transaction check
+Running transaction test
+Transaction test succeeded
+Running transaction
+  Installing : epel-release-7-5.noarch                                                  1/1
+...                                                                      | 1.7 kB  00:00:00
+
+Verifying  : epel-release-7-5.noarch                                                    1/1
+
+Installed:
+  epel-release.noarch 0:7-5
+
+Complete!
+[root@dell-r-430-13 ~]# yum-config-manager --enable epel
+----
+
+[source,bash]
+.install the rdo-release RPM
+----
+[root@dell-r-430-13 ~]# sudo yum install -y https://rdoproject.org/repos/rdo-release.rpm
+Loaded plugins: product-id, search-disabled-repos, subscription-manager
+rdo-release.rpm                                                                                                                                                   | 5.1 kB  00:00:00
+Examining /var/tmp/yum-root-DvCQn7/rdo-release.rpm: rdo-release-liberty-2.noarch
+Marking /var/tmp/yum-root-DvCQn7/rdo-release.rpm to be installed
+Resolving Dependencies
+--> Running transaction check
+---> Package rdo-release.noarch 0:liberty-2 will be installed
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+======================================================================================
+ Package                 Arch            Version            Repository          Size
+======================================================================================
+Installing:
+ rdo-release             noarch          liberty-2          /rdo-release        1.4 k
+
+Transaction Summary
+======================================================================================
+Install  1 Package
+
+Total size: 1.4 k
+Installed size: 1.4 k
+Downloading packages:
+Running transaction check
+Running transaction test
+Transaction test succeeded
+Running transaction
+  Installing : rdo-release-liberty-2.noarch                                         1/1
+epel/x86_64/metalink                                                 |  14 kB  00:00:00
+epel/x86_64                                                          | 4.3 kB  00:00:00
+epel/x86_64/group_gz                                                 | 169 kB  00:00:00
+epel/x86_64/updateinfo                                               | 453 kB  00:00:00
+epel/x86_64/primary_db                                               | 3.7 MB  00:00:00
+  Verifying  : rdo-release-liberty-2.noarch                                         1/1
+
+Installed:
+  rdo-release.noarch 0:liberty-2
+
+Complete!
+----
+
+[source,bash]
+.install some packages and update
+----
+[root@dell-r-430-13 ~]# yum install -y openstack-packstack vim-enhanced
+...
+[root@dell-r-430-13 ~]# yum update -y
+...
+----
+
+[source,bash]
+.disable NetworkManager and use legacy network startup scripts
+----
+[root@dell-r-430-13 ~]# systemctl stop NetworkManager
+[root@dell-r-430-13 ~]# systemctl disable NetworkManager
+Removed symlink /etc/systemd/system/multi-user.target.wants/NetworkManager.service.
+Removed symlink /etc/systemd/system/dbus-org.freedesktop.NetworkManager.service.
+Removed symlink /etc/systemd/system/dbus-org.freedesktop.nm-dispatcher.service.
+[root@dell-r-430-13 ~]# systemctl enable network
+network.service is not a native service, redirecting to /sbin/chkconfig.
+Executing /sbin/chkconfig network on
+----
+
+[NOTE]
+.Network Manager
+====
+OpenStack with NetworkManager enabled has still not been fully tested upstream. It is recommended to disable it for the Liberty release
+====
+
+[source,bash]
+.confirm the network changes work properly
+----
+[root@dell-r-430-13 ~]# ifdown em1 && systemctl start network && ifup em1
+----
+
+[NOTE]
+====
+You may see some warnings here as the network service starts up. If you don't return to a prompt and active tty session you will need to go to the system's console terminal to diagnose the issue before moving forward.
+
+Also note that your interface may change depending on your system setup.
+====
+
+[source,bash]
+.reboot to apply your updates and confirm your system will survive a restart
+----
+[root@dell-r-430-13 ~]# shutdown -r now
+----
+
+[source,bash]
+.generate an answers file on your controller host
+----
+[root@dell-r-430-13 ~]# packstack --gen-answer-file rdo.txt
+Packstack changed given value  to required value /root/.ssh/id_rsa.pub
+----
+
+[IMPORTANT]
+The commands to configure and launch a `packstack` install only happen on the host you designate as your controller host.
+
+[source,bash]
+.make sure your controller can ssh via shared key with your other hosts
+----
+[root@dell-r-430-13 ~]# ssh-copy-id root@dell-r430-14.gsslab.rdu2.redhat.com
+...
+[root@dell-r-430-13 ~]# ssh-copy-id root@dell-r430-15.gsslab.rdu2.redhat.com
+...
+----
+
+[source,bash]
+.make needed edits to the PackStack answers file
+----
+# diff -u rdo.txt rdo-edited.txt
+--- rdo.txt 2015-08-23 15:41:45.041000000 -0400
++++ rdo-edited.txt 2015-08-21 20:17:05.538000000 -0400
+@@ -64,7 +64,7 @@
+ # Specify 'y' to install Nagios to monitor OpenStack hosts. Nagios
+ # provides additional tools for monitoring the OpenStack environment.
+ # ['y', 'n']
+-CONFIG_NAGIOS_INSTALL=y # <1>
++CONFIG_NAGIOS_INSTALL=n
+
+ # Comma-separated list of servers to be excluded from the
+ # installation. This is helpful if you are running Packstack a second
+@@ -84,7 +84,7 @@
+
+ # List of IP addresses of the servers on which to install the Compute
+ # service.
+-CONFIG_COMPUTE_HOSTS=192.168.122.100
++CONFIG_COMPUTE_HOSTS=192.168.122.101,192.168.122.102 # <2>
+
+ # Specify 'y' to provision for demo usage and testing. ['y', 'n']
+-CONFIG_PROVISION_DEMO=y
++CONFIG_PROVISION_DEMO=n # <3>
+
+# Specify 'y' to enable the EPEL repository (Extra Packages for
+# Enterprise Linux). ['y', 'n']
+-CONFIG_USE_EPEL=n
++CONFIG_USE_EPEL=y # <4>
+----
+<1> Nagios is awful. We don't want it anywhere near our cloud
+<2> These are the IPs for the 2 compute hosts we defined earlier
+<3> The 'demo' creates some networking devices that we would have to un-do anyways, so better to just not do it in the first place
+<4> For this demo we will use link:https://fedoraproject.org/wiki/EPEL[EPEL], but you can do this with all RHEL repos as well with a few tweaks we won't go into.
+
+[NOTE]
+If you create 2 answer files and diff them, you will see many other changes, as passwords are randomized each time.
+
+[source,bash]
+.install packstack
+----
+[root@dell-r430-13 ~]# packstack --answer-file=rdo.txt[root@dell-r430-13 ~]# packstack --answer-file=rdo.txt
+----
+
+[NOTE]
+Packstack is normally an interactive install. It can be run that way as well, or by supplying command-line parameters for any or all of the values in the answer file.
+
+==== Success Output
+
+[source,bash]
+----
+...
+ **** Installation completed successfully ******
+
+Additional information:
+ * Time synchronization installation was skipped. Please note that unsynchronized time on server instances might be problem for some OpenStack components.
+ * File /root/keystonerc_admin has been created on OpenStack client host 10.12.209.213. To use the command line tools you need to source the file.
+ * To access the OpenStack Dashboard browse to http://10.12.209.213/dashboard .
+Please, find your login credentials stored in the keystonerc_admin in your home directory.
+ * The installation log file is available at: /var/tmp/packstack/20160105-203200-N1ci2T/openstack-setup.log
+ * The generated manifests are available at: /var/tmp/packstack/20160105-203200-N1ci2T/manifests
+----
+
+==== Post-provisioning Network Setup
+
+Assuming success, you now have a 3-node OpenStack cluster with 2 Nova Compute nodes and 1 node doing pretty much everything else. Unfortunately, out of the box you need to make a few tweaks so you can see your new instances on your native network (in your lab or your laptop or whatever your use case is).
+
+[NOTE]
+The next part of the setup will borrow heavily from This RDO blog post about setting up Neutron with an existing network.The next part of the setup will borrow heavily from link:https://www.rdoproject.org/Neutron_with_existing_external_network[This RDO blog post] about setting up Neutron with an existing network.
+
+===== Network Device Configuration Files
+[IMPORTANT]
+All of these steps needs to happen on each host
+
+We want to use a bridge device to get our VMs on to our network so we create a device named br-ex. We want to use a bridge device to get our VMs on to our network so we create a device named br-ex.
+
+[source,bash]
+./etc/sysconfig/network-scripts/ifcfg-br-ex
+----
+DEVICE=br-ex
+DEVICETYPE=ovs
+TYPE=OVSBridge
+BOOTPROTO=static
+IPADDR=10.10.176.64 # <1>
+NETMASK=255.255.248.0
+GATEWAY=10.10.183.254
+DNS1=10.11.5.4
+ONBOOT=yes
+----
+<1> Be sure to change this on each server to its current IP address
+
+[source,bash]
+./etc/sysconfig/network-scripts/ifcfg-em1
+----
+# Generated by dracut initrd
+NAME="em1" # <1>
+DEVICE="em1"
+ONBOOT=yes
+#NETBOOT=yes
+UUID="a7c7e34b-7452-41e8-9fb3-78e5fa93747e"
+#IPV6INIT=yes
+#BOOTPROTO=dhcp
+TYPE=OVSPort
+HWADDR=44:a8:42:4b:c3:89
+DEVICETYPE=ovs
+OVS_BRIDGE=br-ex
+----
+<1> Your NIC naming convention will vary between hardware vendors
+
+===== Neutron Configuration
+
+[IMPORTANT]
+.remember to source your keystonerc_admin file
+====
+[source,bash]
+----
+[root@dell-r-430-13 ~]# source keystonerc_admin
+----
+====
+
+[source,bash]
+.tell Neutron to use a bridge called ‘br-ex’, and to use the proper plugins
+----
+[root@dell-r-430-13 ~]# openstack-config --set /etc/neutron/plugins/ml2/openvswitch_agent.ini ovs bridge_mappings extnet:br-ex
+[root@dell-r-430-13 ~]# openstack-config --set /etc/neutron/plugin.ini ml2 type_drivers vxlan,flat,vlan
+[root@dell-r-430-13 ~]# reboot
+----
+
+[TIP]
+The openstack-config command above has changed from the Kilo to Liberty release
+
+[IMPORTANT]
+The next commands should be executed only on your controller node
+
+[source,bash]
+.create a provider network
+----
+[root@dell-r-430-13 ~]# source keystonerc_admin
+[root@dell-r-430-13 ~(keystone_admin)]# neutron net-create external_network --provider:network_type flat --provider:physical_network extnet --router:external --shared
+Created a new network:
++---------------------------+--------------------------------------+
+| Field                     | Value                                |
++---------------------------+--------------------------------------+
+| admin_state_up            | True                                 |
+| id                        | 18a798ab-478c-4e1a-892b-ce6328eed455 |
+| mtu                       | 0                                    |
+| name                      | external_network                     |
+| provider:network_type     | flat                                 |
+| provider:physical_network | extnet                               |
+| provider:segmentation_id  |                                      |
+| router:external           | True                                 |
+| shared                    | True                                 |
+| status                    | ACTIVE                               |
+| subnets                   |                                      |
+| tenant_id                 | c77d37f311a646b39560452ad75e7021     |
++---------------------------+--------------------------------------+
+----
+
+.Floating IP Range
+[.striped]
+|====
+|Start|Stop|Gateway|Netmask|External Network|DNS
+
+|10.10.179.230
+|10.10.179.250
+|10.10.183.254
+|255.255.248.0
+|10.10.176.0
+|10.11.5.4,10.11.5.3
+|====
+
+[IMPORTANT]
+This IP range had to be requested from the IT group who manages the Raleigh IT Labs. Currently this process is handled on a per-case basis when using beaker systems.
+
+[source,bash]
+.create a public subnet with our allocated IP addresses
+----
+[root@dell-r430-13 ~(keystone_admin)]# neutron subnet-create --name public_subnet --enable_dhcp=False --allocation-pool=start=10.10.179.230,end=10.10.179.250 --gateway=10.10.183.254 external_network 10.10.176.0/21
+Created a new subnet:
++-------------------+----------------------------------------------------+
+| Field             | Value                                              |
++-------------------+----------------------------------------------------+
+| allocation_pools  | {"start": "10.10.179.230", "end": "10.10.179.250"} |
+| cidr              | 10.10.176.0/21                                     |
+| dns_nameservers   |                                                    |
+| enable_dhcp       | False                                              |
+| gateway_ip        | 10.10.183.254                                      |
+| host_routes       |                                                    |
+| id                | 82f320d7-277c-424a-9c9f-8087226d6dd1               |
+| ip_version        | 4                                                  |
+| ipv6_address_mode |                                                    |
+| ipv6_ra_mode      |                                                    |
+| name              | public_subnet                                      |
+| network_id        | 18a798ab-478c-4e1a-892b-ce6328eed455               |
+| subnetpool_id     |                                                    |
+| tenant_id         | c77d37f311a646b39560452ad75e7021                   |
++-------------------+----------------------------------------------------+
+----
+
+[source,bash]
+.create a virtual router
+----
+[root@dell-r-430-13 ~(keystone_admin)]# neutron router-create router1
+Created a new router:
++-----------------------+--------------------------------------+
+| Field                 | Value                                |
++-----------------------+--------------------------------------+
+| admin_state_up        | True                                 |
+| distributed           | False                                |
+| external_gateway_info |                                      |
+| ha                    | False                                |
+| id                    | 7c4e8f71-9519-40e2-8f4f-2cb41e3e2eb4 |
+| name                  | router1                              |
+| routes                |                                      |
+| status                | ACTIVE                               |
+| tenant_id             | c77d37f311a646b39560452ad75e7021     |
++-----------------------+--------------------------------------+
+----
+
+[source,bash]
+.set the gateway for the virtual router to be the external_network
+----
+[root@dell-r-430-13 ~(keystone_admin)]# neutron router-gateway-set router1 external_network
+Set gateway for router router1
+----
+
+[source,bash]
+.create a private network
+----
+[root@dell-r-430-13 ~(keystone_admin)]# neutron net-create private_network
+Created a new network:
++---------------------------+--------------------------------------+
+| Field                     | Value                                |
++---------------------------+--------------------------------------+
+| admin_state_up            | True                                 |
+| id                        | 81c0137e-4939-422c-9f10-fe7e0c844756 |
+| mtu                       | 0                                    |
+| name                      | private_network                      |
+| provider:network_type     | vxlan                                |
+| provider:physical_network |                                      |
+| provider:segmentation_id  | 44                                   |
+| router:external           | False                                |
+| shared                    | False                                |
+| status                    | ACTIVE                               |
+| subnets                   |                                      |
+| tenant_id                 | c77d37f311a646b39560452ad75e7021     |
++---------------------------+--------------------------------------+
+----
+
+[source,bash]
+.create a private subnet on the private network
+----
+[root@dell-r-430-13 ~(keystone_admin)]# neutron subnet-create --dns-nameservers list=true 8.8.8.8 8.8.4.4 --name private_subnet  private_network 192.168.100.0/24
+Created a new subnet:
++-------------------+------------------------------------------------------+
+| Field             | Value                                                |
++-------------------+------------------------------------------------------+
+| allocation_pools  | {"start": "192.168.100.2", "end": "192.168.100.254"} |
+| cidr              | 192.168.100.0/24                                     |
+| dns_nameservers   |                                                      |
+| enable_dhcp       | True                                                 |
+| gateway_ip        | 192.168.100.1                                        |
+| host_routes       |                                                      |
+| id                | 30b31a80-3e9a-442a-9008-e0a86ad51b7d                 |
+| ip_version        | 4                                                    |
+| ipv6_address_mode |                                                      |
+| ipv6_ra_mode      |                                                      |
+| name              | private_subnet                                       |
+| network_id        | 81c0137e-4939-422c-9f10-fe7e0c844756                 |
+| subnetpool_id     |                                                      |
+| tenant_id         | c77d37f311a646b39560452ad75e7021                     |
++-------------------+------------------------------------------------------+
+----
+
+[source,bash]
+.add an interface to the virtual router that connects to the private subnet
+----
+[root@dell-r-430-13 ~(keystone_admin)]# neutron router-interface-add router1 private_subnet
+Added interface 1f21b435-3876-41ec-84ee-e58663b614b6 to router router1.
+----
+
+==== Summary
+
+Using packstack, we were able to create a multi-node OpenStack demo that allows our guest instances direct network access.
+
+On this hardware it took about 30 minutes.
