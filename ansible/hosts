@@ -1,0 +1,7 @@
+[laptop]
+192.168.122.1
+
+[guests]
+controller ip=192.168.122.130 vcpus=4 ram=4096 disk=10
+compute1 ip=192.168.122.131 vcpus=4 ram=4096 disk=10
+compute2 ip=192.168.122.132 vcpus=4 ram=4096 disk=10

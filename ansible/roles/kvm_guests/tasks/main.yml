@@ -1,0 +1,3 @@
+# openstack packstack 3-node kvm-based demo playbook
+# Jamie Duncan - jduncan@redhat.com
+# lots of the kvm provisioning stuff was adapted from https://github.com/ansible-provisioning/workshop-provisioning

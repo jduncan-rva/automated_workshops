@@ -1,0 +1,20 @@
+# IP for the hypervisor server that you are deploying to
+hypervisor: 192.168.122.1
+packages_url: http://192.168.122.1/os
+
+network_name: default
+graphics: none
+
+os_type: linux
+os_variant: rhel7
+kvm_disk_path: /var/lib/libvirt/images
+
+ssh_key: /home/jduncan/.ssh/id_rsa.pub
+
+# networking parameters
+domain: example.com
+libvirt_network: default
+network: 192.168.122.0
+netmask: 255.255.255.0
+gateway: 192.168.122.1
+dns: 192.168.122.1

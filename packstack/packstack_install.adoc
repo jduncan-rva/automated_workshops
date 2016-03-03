@@ -16,6 +16,54 @@ This system will handle the packstack install and run all OpenStack services exc
 The compute nodes (2 in this example, but the number can be much higher) run nova-compute and any additional client services to allow it to host guest instances.
 ****
 
+=== Hardware
+
+.This {preso_type} will be installed on {host_count} kvm virtual machines. For today's {preso_type} it is running on my laptop and we will be using nested virtualization to kick the tires a little bit.
+
+.Hypervisor Host
+|====
+|Attribute|Value
+
+|Hostname|laptop.example.com
+|RAM|16GB
+|Disk|256GB SSD
+|CPU|8
+|OS|Fedora 23
+|====
+
+.Network Information
+|====
+|Attribute|Value
+
+|Network|192.168.122.0
+|Netmask|255.255.255.0
+|Gateway|192.168.122.1
+|====
+
+.PackStack Install Virtual Hosts
+|====
+|Hostname|Role|IP|RAM|VCPU
+
+|controller.example.com
+|Controller
+|192.168.122.100
+|4GB
+|2
+
+|node1.example.com
+|Compute
+|192.168.122.101
+|4GB
+|2
+
+|node2.example.com
+|Compute
+|192.168.122.102
+|4GB
+|2
+|====
+
+
 === Install Walkthrough
 
 [IMPORTANT]
@@ -262,7 +310,7 @@ If you create 2 answer files and diff them, you will see many other changes, as 
 [NOTE]
 Packstack is normally an interactive install. It can be run that way as well, or by supplying command-line parameters for any or all of the values in the answer file.
 
-==== Success Output
+=== Success Output
 
 [source,bash]
 ----
@@ -278,14 +326,14 @@ Please, find your login credentials stored in the keystonerc_admin in your home 
  * The generated manifests are available at: /var/tmp/packstack/20160105-203200-N1ci2T/manifests
 ----
 
-==== Post-provisioning Network Setup
+=== Post-provisioning Network Setup
 
 Assuming success, you now have a 3-node OpenStack cluster with 2 Nova Compute nodes and 1 node doing pretty much everything else. Unfortunately, out of the box you need to make a few tweaks so you can see your new instances on your native network (in your lab or your laptop or whatever your use case is).
 
 [NOTE]
 The next part of the setup will borrow heavily from This RDO blog post about setting up Neutron with an existing network.The next part of the setup will borrow heavily from link:https://www.rdoproject.org/Neutron_with_existing_external_network[This RDO blog post] about setting up Neutron with an existing network.
 
-===== Network Device Configuration Files
+==== Network Device Configuration Files
 [IMPORTANT]
 All of these steps needs to happen on each host
 
@@ -324,16 +372,16 @@ OVS_BRIDGE=br-ex
 ----
 <1> Your NIC naming convention will vary between hardware vendors
 
-===== Neutron Configuration
+==== Neutron Configuration
 
 [IMPORTANT]
 .remember to source your keystonerc_admin file
-====
+===
 [source,bash]
 ----
 [root@dell-r-430-13 ~]# source keystonerc_admin
 ----
-====
+===
 
 [source,bash]
 .tell Neutron to use a bridge called ‘br-ex’, and to use the proper plugins
@@ -496,7 +544,7 @@ Created a new subnet:
 Added interface 1f21b435-3876-41ec-84ee-e58663b614b6 to router router1.
 ----
 
-==== Summary
+=== Summary
 
 Using packstack, we were able to create a multi-node OpenStack demo that allows our guest instances direct network access.
 

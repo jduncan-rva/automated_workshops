@@ -1,0 +1,50 @@
+# Prepares a system to run KVM Virtual Machines
+# Jamie Duncan
+
+- name: ensure kvm is installed and started
+  service: name=libvirtd state=started enabled=yes
+  register: libvirtd
+
+- name: wait for libvirtd to get up
+  pause: seconds=30
+  when: libvirtd.changed
+
+- name: ensure virt-install is installed
+  yum: name=virt-install state=latest
+
+- name: ensure libguestfs-tools is installed
+  yum: name=libguestfs-tools state=latest
+
+- name: Copy over the virtual disk images
+  copy: src={{ guest_image }} dest={{ kvm_disk_dir }}/{{ hostvars[item]['inventory_hostname'] }}.qcow2
+  with_items: groups['guests']
+
+- name: create temporary folder for ifcfg files
+  file: name=/tmp/{{ hostvars[item]['inventory_hostname'] }} state=directory
+  with_items: groups['guests']
+
+- name: create ifcfg files for each server
+  template: src=../templates/ifcfg-eth0 dest=/tmp/{{ hostvars[item]['inventory_hostname'] }}/ifcfg-eth0
+  with_items: groups['guests']
+
+- name: Customize the virtual disk images
+  command: virt-customize -a {{ kvm_disk_path }}/{{ hostvars[item]['inventory_hostname'] }}.qcow2
+           --hostname {{ hostvars[item]['inventory_hostname'] }}
+           --ssh-inject root:file:{{ ssh_key }}
+           --upload /tmp/{{ hostvars[item]['inventory_hostname'] }}/ifcfg-eth0:/etc/sysconfig/network-scripts/
+           --run-command 'systemctl disable cloud-init'
+           --firstboot-command 'systemctl stop cloud-init'
+  with_items: groups['guests']
+
+- name: Define guest images
+  virt: name={{ hostvars[item]['inventory_hostname'] }}
+        command=define
+        xml="{{ lookup('template', '../templates/vm.xml') }}"
+        uri=qemu:///system
+  with_items: groups['guests']
+
+- name: Start the new Virtual Machines
+  virt:  name={{ hostvars[item]['inventory_hostname'] }}
+         command=start
+         uri=qemu:///system 
+  with_items: groups['guests']
