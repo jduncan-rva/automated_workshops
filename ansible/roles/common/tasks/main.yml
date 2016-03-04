@@ -1,0 +1,7 @@
+# common tasks for all rhel systems
+
+- name: Register System with RHN Subscription Manager
+  redhat_subscription: state=present
+                       username={{ rhn_user }}
+                       password={{ rhn_pass }}
+                       autosubscribe=true

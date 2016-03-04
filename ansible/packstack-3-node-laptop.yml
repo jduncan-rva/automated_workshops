@@ -1,0 +1,21 @@
+# Deploys a 3-node packstack demo
+# By default it makes the following assumptions:
+# 1) The hypervisor is also the ansible server
+# 2) It is also your laptop
+# 3) your vm's are in the 'guests' group in your hosts file
+# It may well work with a disconnected hypervisor but it hasn't been tested as of yet
+# - jduncan
+
+- hosts: laptop
+  remote_user: root
+  roles:
+  - kvm_hypervisor
+- hosts: guests
+  vars_files:
+    - passes.yml
+  remote_user: root
+  gather_facts: no
+  roles:
+  - common  # this includes RHN registration
+  - kvm_guests
+  - packstack

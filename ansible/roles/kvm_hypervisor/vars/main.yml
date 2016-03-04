@@ -1,11 +1,8 @@
 kvm_disk_dir: /var/lib/libvirt/images
-# kvm guest image
 guest_image: /home/jduncan/Downloads/rhel-guest-image-7.2-20160219.1.x86_64.qcow2
+root_password: redhat01
 
-network_name: default
-graphics: vnc
-
-kvm_disk_path: /var/lib/libvirt/images
+tmp_workspace: /tmp/ansible-tmp
 
 ssh_key: /home/jduncan/.ssh/id_rsa.pub
 
@@ -16,3 +13,6 @@ network: 192.168.122.0
 netmask: 255.255.255.0
 gateway: 192.168.122.1
 dns: 192.168.122.1
+
+ssh_known_hosts_command: "ssh-keyscan -H -T 10"
+ssh_known_hosts_file: "/home/jduncan/.ssh/known_hosts"
