@@ -1,4 +1,20 @@
-Large parts of this deployment were lifted and modified from
-https://github.com/ansible-provisioning/workshop-provisioning
+= Automated Workshops
+Jamie Duncan <jduncan@redhat.com>
 
+== Purpose
 
+This collection of ansible playbooks and corresponding asciidoc-based workshops is designed to make it easier to build out demos and workshops.
+
+== Structure
+
+=== Ansible
+
+The ansible code is a collection of roles and playbooks that are designed (in theory) to be stacked on top of one another to build out complex environments.
+
+=== Asciidoc
+
+The asciidoc files are collections of full workshops as well as snippets that can be copied/pasted to form larger and more dense workshops as desired.
+
+=== TODO
+
+Right now there is no direct relationship between the ansible code and the workshop documentation. Eventually I'd like to get to a structure where ansible renders parts of the asciidoc code at build time to make the data integrate seamlessly.

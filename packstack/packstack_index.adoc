@@ -14,4 +14,4 @@ Jamie Duncan <jduncan@redhat.com>
 
 include::packstack_install.adoc[]
 
-include::packstack_lab.ado[]
+include::packstack_lab.adoc[]

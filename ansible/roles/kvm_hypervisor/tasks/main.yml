@@ -12,6 +12,10 @@
 - name: ensure libguestfs-tools is installed
   yum: name=libguestfs-tools state=latest
 
+- name: clean up any old temporary workspaces
+  file: name={{ tmp_workspace }} state=absent
+  ignore_errors: true
+
 - name: create workspace folder
   file: name={{ tmp_workspace }} state=directory
 
@@ -24,6 +28,18 @@
 - name: create tmp hosts file for image customization
   template: src=../templates/hosts dest={{ tmp_workspace }}/hosts
 
+- name: remove any old guest instances
+  virt: name={{ hostvars[item]['inventory_hostname'] }}
+        command=undefine
+        uri=qemu:///system
+  with_items: groups['guests']
+  ignore_errors: true
+
+- name: clean up any old disk images
+  file: name={{ kvm_disk_dir }}/{{ hostvars[item]['inventory_hostname'] }}.qcow2 state=absent
+  with_items: groups['guests']
+  ignore_errors: true
+
 - name: Copy over the virtual disk images
   copy: src={{ guest_image }} dest={{ kvm_disk_dir }}/{{ hostvars[item]['inventory_hostname'] }}.qcow2
   with_items: groups['guests']
@@ -32,7 +48,7 @@
   file: name={{ tmp_workspace }}/{{ hostvars[item]['inventory_hostname'] }} state=directory
   with_items: groups['guests']
 
-- name: create ifcfg files for each server
+- name: create eth0 ifcfg files for each server
   template: src=../templates/ifcfg-eth0 dest={{ tmp_workspace }}/{{ hostvars[item]['inventory_hostname'] }}/ifcfg-eth0
   with_items: groups['guests']
 

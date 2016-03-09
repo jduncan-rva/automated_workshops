@@ -1,2 +1,179 @@
 # openstack packstack 3-node kvm-based demo playbook
 # Jamie Duncan - jduncan@redhat.com
+
+- name: disable all repositories so we can enable just the ones we want
+  command: subscription-manager repos --disable=\*
+
+- name: enable the needed rhel repositories
+  command: subscription-manager repos --enable={{ item }}
+  with_items: "{{ repo_channels }}"
+
+- name: install the RDO Release rpm
+  yum: name=https://rdoproject.org/repos/rdo-release.rpm state=installed
+  when: role == "controller"
+
+- name: install openstack-packstack package on the controller
+  yum: name=openstack-packstack state=latest
+  when: role == "controller"
+
+# the default RHEL 7 image comes with a bunch of cloud-init stuff that runs on startup that looks for
+# a server to talk to.
+# this is incredibly helpful in things like OpenStack and RHEV. But here, not so much.
+# so i remove it.
+- name: remove that pesky cloud-init stuff
+  yum: name=cloud-init state=absent
+
+- name: update all servers
+  yum: name=* state=latest
+
+- name: disable NetworkManager
+  service: name=NetworkManager enabled=no state=stopped
+
+- name: enable legacy network service
+  service: name=network enabled=yes state=started
+
+- name: reboot each system
+  shell: sleep 2 && systemctl reboot
+  async: 1
+  poll: 0
+  ignore_errors: true
+
+- name: wait for server to come back
+  local_action: wait_for host={{ inventory_hostname }} state=started delay=30 timeout=300 port=22
+  sudo: false
+
+- name: add RDO Packstack answers file to controller
+  template: src=../templates/rdo.txt dest=/root/rdo.txt
+  when: role == "controller"
+
+- name: deploy the private key to the controller
+  copy:
+    content: "{{ packstack_ssh_priv }}"
+    dest: /root/.ssh/id_rsa
+    owner: root
+    group: root
+    mode: 0600
+  no_log: true
+  when: role == "controller"
+
+- name: deploy the public key to the controller
+  copy:
+    content: "{{ packstack_ssh_pub }}"
+    dest: /root/.ssh/id_rsa.pub
+    owner: root
+    group: root
+    mode: 0600
+  when: role == "controller"
+
+- name: deploy the public key to all nodes
+  authorized_key: user=root key="{{ packstack_ssh_pub }}"
+
+- name: add the compute ssh host keys by hostname to the controller
+  shell: "ssh-keyscan {{ hostvars[item]['inventory_hostname'] }} >> {{ ssh_known_hosts_file }}"
+  with_items: groups['guests']
+  when: role == 'controller'
+
+- name: add the compute ssh host keys by ip to the controller
+  shell: "ssh-keyscan {{ hostvars[item]['ip'] }} >> {{ ssh_known_hosts_file }}"
+  with_items: groups['guests']
+  when: role == 'controller'
+
+- name: deploy packstack
+  command: packstack --answer-file=/root/rdo.txt
+  when: role == 'controller'
+
+- name: enable dnsmasq on the controller
+  service: name=dnsmasq enabled=yes state=started
+  when: role == 'controller'
+
+- name: generate uuid for eth0 on compute nodes
+  command: uuidgen eth0
+  register: eth0_uuid
+  when: role == 'compute'
+
+- name: collect dns server for compute nodes
+  shell: grep -m 1 nameserver /etc/resolv.conf | awk '{ print $2}'
+  register: dns
+  when: role == 'compute'
+
+- name: create ifcfg-br-ex file on compute nodes
+  template: src=../templates/ifcfg-br-ex dest=/etc/sysconfig/network-scripts/ifcfg-br-ex
+  when: role == 'compute'
+
+- name: replace ifcfg-eth0 file on compute nodes
+  template: src=../templates/ifcfg-eth0 dest=/etc/sysconfig/network-scripts/ifcfg-eth0
+  when: role == 'compute'
+
+- name: configure neutron to use openvswitch
+  sudo: no
+  shell: source /root/keystonerc_admin && openstack-config --set /etc/neutron/plugins/ml2/openvswitch_agent.ini ovs bridge_mappings extnet:br-ex
+  args:
+    executable: /bin/bash
+  when: role == 'controller'
+
+- name: configure neutron to use the vxlan plugins
+  sudo: no
+  shell: source /root/keystonerc_admin && openstack-config --set /etc/neutron/plugin.ini ml2 type_drivers vxlan,flat,vlan
+  args:
+    executable: /bin/bash
+  when: role == 'controller'
+
+- name: tweak neutron ml2 config for
+  lineinfile: dest=/etc/neutron/plugins/ml2/ml2_conf.ini regexp="^type_drivers" line="type_drivers = vxlan,local,flat"
+  when: role == 'controller'
+
+- name: restart neutron-server
+  service: name=neutron-server enabled=yes state=restarted
+  when: role == 'controller'
+
+- name: create a neutron external network
+  shell: source /root/keystonerc_admin && neutron net-create external_network --provider:network_type flat --provider:physical_network extnet --router:external --shared
+  args:
+    executable: /bin/bash
+  when: role == 'controller'
+
+- name: create a neutron public subnet
+  shell: source /root/keystonerc_admin && neutron subnet-create --name public_subnet --enable_dhcp=False --allocation-pool=start={{ neutron_floating_ip_start }},end={{ neutron_floating_ip_end }} --gateway={{ neutron_floating_ip_gw }} external_network {{ neutron_floating_network }}
+  args:
+    executable: /bin/bash
+  when: role == 'controller'
+
+- name: create a neutron router
+  shell: source /root/keystonerc_admin && neutron router-create router1
+  args:
+    executable: /bin/bash
+  when: role == 'controller'
+
+- name: set the gateway for the virtual router to be the external network_type
+  shell: source /root/keystonerc_admin && neutron router-gateway-set router1 external_network
+  args:
+    executable: /bin/bash
+  when: role == 'controller'
+
+- name: create a neutron private network
+  shell: source /root/keystonerc_admin && neutron net-create private_network
+  args:
+    executable: /bin/bash
+  when: role == 'controller'
+
+- name: create a neutron private subnet
+  shell: source /root/keystonerc_admin && neutron subnet-create --dns-nameserver {{ neutron_private_dns }} --name private_subnet private_network {{ neutron_private_network }}
+  args:
+    executable: /bin/bash
+  when: role == 'controller'
+
+- name: add an interface for the private subnet to the virtual router
+  shell: source /root/keystonerc_admin && neutron router-interface-add router1 private_subnet
+  args:
+    executable: /bin/bash
+  when: role == 'controller'
+
+- name: reboot each system
+  shell: sleep 2 && systemctl reboot
+  async: 1
+  poll: 0
+  ignore_errors: true
+
+- name: wait for server to come back
+  local_action: wait_for host={{ inventory_hostname }} state=started delay=30 timeout=300 port=22
+  sudo: false

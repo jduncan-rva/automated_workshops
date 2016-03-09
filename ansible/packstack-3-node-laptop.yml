@@ -14,7 +14,6 @@
   vars_files:
     - passes.yml
   remote_user: root
-  gather_facts: no
   roles:
   - common  # this includes RHN registration
   - kvm_guests
