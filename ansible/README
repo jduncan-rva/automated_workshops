@@ -1,48 +1,48 @@
-= Ansible Plays
+# Ansible Plays
 
-== Packstack 3 Node Laptop
+## Packstack 3 Node Laptop
 
 * playbook - packstack-3-node-laptop.yml
 * hosts - packstack-3-node-laptop-hosts
 
-=== Required Before Running
+### Required Before Running
 
-==== RHEL 7.2 QCOW2 image
+#### RHEL 7.2 QCOW2 image
 
 * download from access.redhat.com
 * set location of downloaded file as `guest_image` variable in `kvm_hypervisor/vars/main.yml`
 
-=== Assumptions Made
+### Assumptions Made
 
 * That this will be executed on a Fedora-based laptop that will act as the hypervisor
 ** This will likely work with an external hypervisor as well, but it hasn't been tested as of yet
 * It will use the kvm/libvirt default network of `192.168.122.0/24`
 ** This should work no matter the network, but as of yet it hasn't been tested.
 
-=== To successfully Run
+### To successfully Run
 
-==== passes.yml
+#### passes.yml
 
-In the `ansible` directory create a link:http://docs.ansible.com/ansible/playbooks_vault.html[vault-encrypted] vars file defining the following
+In the `ansible` directory create a [vault-encrypted](http://docs.ansible.com/ansible/playbooks_vault.html) vars file defining the following
 
 * rhn_user - your RHN username
 * rhn_pass - your RHN password
-* packstack_ssh_priv - private key to use for packstack ssh communications on the guests. be sure to use the link:http://stackoverflow.com/questions/3790454/in-yaml-how-do-i-break-a-string-over-multiple-lines[proper format] for the multi-line private keys
+* packstack_ssh_priv - private key to use for packstack ssh communications on the guests. be sure to use the [proper format](http://stackoverflow.com/questions/3790454/in-yaml-how-do-i-break-a-string-over-multiple-lines) for the multi-line private keys
 * packstack_ssh_pub - the corresponding public key for the private key
 
-==== kvm guest definitions in the hosts file
+#### kvm guest definitions in the hosts file
 
 By default, this will build out a 3-node cluser of kvm guests. These are defined by the `[guests]` group in the hosts file. The vcpus, ram, and role in the cluster are defined by host variables in this file as well.
 
-```
+```yaml
 [guests]
-controller role=controller ip=192.168.122.130 vcpus=4 ram=4096
-compute1 role=compute ip=192.168.122.131 vcpus=4 ram=4096
-compute2 role=compute ip=192.168.122.132 vcpus=4 ram=4096
+controller role#controller ip#192.168.122.130 vcpus#4 ram#4096
+compute1 role#compute ip#192.168.122.131 vcpus#4 ram#4096
+compute2 role#compute ip#192.168.122.132 vcpus#4 ram#4096
 ```
 
 These variables are used to create the VM, and must thus be defined ahead of time. The `guests` group is coded throughout the playbook. changing it would take some time, but is doable down the road.
 
-=== Ansible command
+### Ansible command
 
 `ansible-playbook packstack-3-node-laptop.yml -i packstack-3-node-laptop-hosts --ask-vault-pass`
