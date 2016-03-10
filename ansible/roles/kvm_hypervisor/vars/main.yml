@@ -12,7 +12,6 @@ libvirt_network: default
 network: 192.168.122.0
 netmask: 255.255.255.0
 gateway: 192.168.122.1
-dns: 8.8.8.8
 
 ssh_known_hosts_command: "ssh-keyscan -H -T 10"
 ssh_known_hosts_file: "/home/jduncan/.ssh/known_hosts"

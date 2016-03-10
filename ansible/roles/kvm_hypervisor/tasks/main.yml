@@ -12,6 +12,10 @@
 - name: ensure libguestfs-tools is installed
   yum: name=libguestfs-tools state=latest
 
+- name: collect dns server information
+  shell: grep -m 1 nameserver /etc/resolv.conf | awk '{ print $2}'
+  register: dns
+
 - name: clean up any old temporary workspaces
   file: name={{ tmp_workspace }} state=absent
   ignore_errors: true
