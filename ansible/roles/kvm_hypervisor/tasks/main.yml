@@ -36,6 +36,7 @@
   virt: name={{ hostvars[item]['inventory_hostname'] }}
         command=undefine
         uri=qemu:///system
+        state=destroyed
   with_items: groups['guests']
   ignore_errors: true
 

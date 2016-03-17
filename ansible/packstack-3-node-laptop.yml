@@ -18,3 +18,4 @@
   - common  # this includes RHN registration
   - kvm_guests
   - packstack
+  - packstack-demo
