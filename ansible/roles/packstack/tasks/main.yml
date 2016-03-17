@@ -168,6 +168,10 @@
     executable: /bin/bash
   when: role == 'controller'
 
+- name: add encryption url to cinder.conf to eliminate quota error window in horizon
+  lineinfile: dest=/etc/cinder/cinder.conf regexp="#encryption_auth_url" line="encryption_auth_url=http://{{ ip }}:5000/v3"
+  when: role == 'controller'
+
 - name: reboot each system
   shell: sleep 2 && systemctl reboot
   async: 1
