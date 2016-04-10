@@ -1,6 +1,7 @@
 kvm_disk_dir: /var/lib/libvirt/images
 guest_image: /home/jduncan/Downloads/rhel-guest-image-7.2-20160219.1.x86_64.qcow2
 atomic_guest_image: /home/jduncan/Downloads/rhel-atomic-cloud-7.2-12.x86_64.qcow2
+rhel_6_guest_image: /home/jduncan/Downloads/rhel-guest-image-6.7-20160301.1.x86_64.qcow2
 root_password: redhat01
 
 tmp_workspace: /tmp/ansible-tmp

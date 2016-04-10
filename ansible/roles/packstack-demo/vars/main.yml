@@ -1,0 +1,10 @@
+rc_file: /root/keystonerc_admin
+
+atomic_image_qcow: /home/jduncan/Downloads/rhel-atomic-cloud-7.2-12.x86_64.qcow2
+atomic_image_qcow_dest: /root/atomic-7.2-12.x86_64.qcow2
+atomic_image_name: atomic-7.2
+
+swift_demo_image_sourcedir: /home/jduncan/Downloads
+swift_demo_image_destdir: /root
+swift_demo_image: dwalsh.jpg
+swift_container: democontainer

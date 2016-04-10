@@ -1,0 +1,44 @@
+- name: create kubernetes template for registry service
+  template: src=../templates/registry-service.yaml dest=/root/registry-service.yaml
+  when: role == 'master'
+- name: create kubernetes template for registry replication controller
+  template: src=../templates/registry-controller.yaml dest=/root/registry-controller.yaml
+  when: role == 'master'
+- name: create kubernetes template for registry replication controller with nfs
+  template: src=../templates/registry-controller-nfs.yaml dest=/root/registry-controller-nfs.yaml
+  when: role == 'master'
+- name: create the certificate directory for each node
+  file: path=/etc/docker/certs.d/kube1.example.com:5000 state=directory
+  when: role == 'node'
+- name: add the registry certificate for docker
+  template: src=../templates/certs/domain.crt dest=/etc/docker/certs.d/kube1.example.com:5000/ca.crt
+  when: role == 'node'
+- name: create the certs directory to mount into the registry container
+  file: path=/var/certs state=directory
+  when: role == 'node'
+- name: add the registry cert to /var/certs
+  template: src=../templates/certs/domain.crt dest=/var/certs/domain.crt
+  when: role == 'node'
+- name: add the registry key to /var/certs
+  template: src=../templates/certs/domain.key dest=/var/certs/domain.key
+  when: role == 'node'
+- name: set selinux boolean to allow pods to use nfs
+  seboolean: name=virt_use_nfs state=yes persistent=yes
+  when: role == 'node'
+- name: pull down the docker.io/register:2 image
+  docker:
+    registry: "docker.io"
+    image: "docker.io/registry:2"
+    state: present
+    insecure_registry: yes
+  when: role == 'node'
+- name: create registry service
+  command: kubectl create -f /root/registry-service.yaml
+  when: role == 'master' and provision_demo == 'true'
+- name: create registry replication controller without nfs-based storage
+  command: kubectl create -f /root/registry-controller-nfs.yaml
+  when: role == 'master' and provision_demo == 'true' and use_nfs == 'false'
+- name: create registry replication controller with nfs-based storage
+  command: kubectl create -f /root/registry-controller.yaml
+  when: role == 'master' and provision_demo == 'true' and use_nfs == 'true'
+  

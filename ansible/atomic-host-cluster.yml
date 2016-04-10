@@ -10,18 +10,24 @@
   vars_files:
     - passes.yml
   vars:
-    deploy_packstack: true
+    deploy_packstack: false
     deploy_rhevm: false
-    deploy_atomic: false
+    deploy_atomic: true
   remote_user: root
   roles:
   - kvm_hypervisor
-- hosts: packstack_guests
+
+- hosts: atomic_guests
+  vars:
+    patch_systems: false
+    provision_demo: true
+    use_nfs: true
+  remote_user: cloud-user
+  sudo: yes
   vars_files:
     - passes.yml
-  remote_user: cloud-user
   roles:
-  - common  # this includes RHN registration
+  - common
   - kvm_guests
-  - packstack
-  - packstack-demo
+  - atomic
+  - atomic-demo

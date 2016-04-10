@@ -5,3 +5,7 @@
                        username={{ rhn_user }}
                        password={{ rhn_pass }}
                        autosubscribe=true
+
+- name: Attach a RHEV Pool ID for RHEV-M guests
+  command: subscription-manager attach --pool={{ rhev_pool_id }}
+  when: "'rhev_m' in group_names"

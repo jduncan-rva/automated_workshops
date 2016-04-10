@@ -28,8 +28,16 @@
       <target dev='vda' bus='virtio'/>
     </disk>
 
+    <disk type='file' device='cdrom'>
+      <drive name='qemu' type='raw'/>
+      <source file='{{ kvm_disk_dir }}/{{ hostvars[item]['inventory_hostname'] }}-ci.iso'/>
+      <target dev='vdb' bus='virtio'/>
+      <readonly/>
+    </disk>
+
     <interface type='network'>
       <source network='default'/>
+      <mac address='{{ hostvars[item]['mac'] }}'/>
       <model type='virtio'/>
     </interface>
 

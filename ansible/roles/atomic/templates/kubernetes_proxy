@@ -1,0 +1,5 @@
+{% for host in groups['atomic_guests'] %}
+{% if 'role' == 'master' %}
+KUBE_PROXY_ARGS="--master=http://{{ hostvars[host]['inventory_hostname'] }}:8080"
+{% endif %}
+{% endfor %}

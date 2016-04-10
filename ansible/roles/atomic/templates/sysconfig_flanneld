@@ -1,0 +1,6 @@
+{% for host in groups['atomic_guests'] %}
+{% if hostvars[host]['role'] == 'master' %}
+FLANNEL_ETCD="http://{{ hostvars[host]['inventory_hostname'] }}:2379"
+{% endif %}
+{% endfor %}
+FLANNEL_ETCD_KEY="/coreos.com/network"

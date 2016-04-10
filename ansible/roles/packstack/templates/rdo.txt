@@ -83,7 +83,7 @@ CONFIG_CONTROLLER_HOST={{ ip }}
 
 # List the servers on which to install the Compute service.
 {% set comma = joiner(",") %}
-CONFIG_COMPUTE_HOSTS={% for host in groups['guests'] %}{% if hostvars[host]['role'] == 'compute' %}{{ comma() }}{{ hostvars[host]['ip'] }}{% endif %}{% endfor %}
+CONFIG_COMPUTE_HOSTS={% for host in groups['packstack_guests'] %}{% if hostvars[host]['role'] == 'compute' %}{{ comma() }}{{ hostvars[host]['ip'] }}{% endif %}{% endfor %}
 
 
 

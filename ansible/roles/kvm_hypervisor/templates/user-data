@@ -1,0 +1,26 @@
+#cloud-config
+password: redhat01
+chpasswd: { expire: False }
+ssh_pwauth: True
+ssh_authorized_keys:
+  - {{ packstack_ssh_pub }}
+
+write_files:
+- content: |
+   127.0.0.1		localhost.localdomain localhost
+   ::1		localhost6.localdomain6 localhost6
+   {% for host in  groups['packstack_guests'] %}
+   {{ hostvars[host]['ip'] }} {{ hostvars[host]['inventory_hostname'] }}  {{ hostvars[host]['inventory_hostname'] }}.{{ domain }}
+   {% endfor %}
+   {% for host in groups['rhev_m'] %}
+   {{ hostvars[host]['ip'] }} {{ hostvars[host]['inventory_hostname'] }}  {{ hostvars[host]['inventory_hostname'] }}.{{ domain }}
+   {% endfor %}
+   {% for host in groups['rhev_h'] %}
+   {{ hostvars[host]['ip'] }} {{ hostvars[host]['inventory_hostname'] }}  {{ hostvars[host]['inventory_hostname'] }}.{{ domain }}
+   {% endfor %}
+   {% for host in groups['atomic_guests'] %}
+   {{ hostvars[host]['ip'] }} {{ hostvars[host]['inventory_hostname'] }}  {{ hostvars[host]['inventory_hostname'] }}.{{ domain }}
+   {% endfor %}
+  owner: root:root
+  path: /etc/hosts
+  permissions: '0644'

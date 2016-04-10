@@ -7,21 +7,26 @@
 # - jduncan
 
 - hosts: laptop
-  vars_files:
-    - passes.yml
   vars:
-    deploy_packstack: true
-    deploy_rhevm: false
+    deploy_packstack: false
+    deploy_rhevm: true
     deploy_atomic: false
   remote_user: root
   roles:
   - kvm_hypervisor
-- hosts: packstack_guests
+
+- hosts: rhev_m
+  remote_user: cloud-user
   vars_files:
     - passes.yml
+  roles:
+  - common
+  - kvm_guests
+  - rhev-m
+
+- hosts: rhev_h
   remote_user: cloud-user
   roles:
-  - common  # this includes RHN registration
+  - common
   - kvm_guests
-  - packstack
-  - packstack-demo
+  - rhev-h

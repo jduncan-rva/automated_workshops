@@ -1,6 +1,0 @@
-[laptop]
-192.168.122.1
-
-[guests]
-controller role=controller ip=192.168.122.130 vcpus=4 ram=7168
-compute1 role=compute ip=192.168.122.131 vcpus=4 ram=7168

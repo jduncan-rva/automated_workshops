@@ -1,0 +1,8 @@
+KUBELET_ADDRESS="--address=0.0.0.0"
+KUBELET_HOSTNAME=""
+{% for host in groups['atomic_guests'] %}
+{% if hostvars[host]['role'] == 'master' %}
+KUBELET_API_SERVER="--api_servers=http://{{ hostvars[host]['inventory_hostname'] }}:8080"
+{% endif %}
+{% endfor %}
+KUBELET_ARGS="--register-node=true"

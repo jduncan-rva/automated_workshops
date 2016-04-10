@@ -1,0 +1,82 @@
+- name: remove any old guest instances
+  virt: name={{ hostvars[item]['inventory_hostname'] }}
+        command=undefine
+        uri=qemu:///system
+        state=destroyed
+  with_items: groups['rhev_m']
+  ignore_errors: true
+
+- name: clean up any old disk images
+  file: name={{ kvm_disk_dir }}/{{ hostvars[item]['inventory_hostname'] }}.qcow2 state=absent
+  with_items: groups['rhev_m']
+  ignore_errors: true
+
+- name: Copy over the virtual disk images
+  copy: src={{ rhel_6_guest_image }} dest={{ kvm_disk_dir }}/{{ hostvars[item]['inventory_hostname'] }}.qcow2
+  #copy: src={{ guest_image }} dest={{ kvm_disk_dir }}/{{ hostvars[item]['inventory_hostname'] }}.qcow2
+  with_items: groups['rhev_m']
+
+- name: create temporary folder for host disk customization
+  file: name={{ tmp_workspace }}/{{ hostvars[item]['inventory_hostname'] }} state=directory
+  with_items: groups['rhev_m']
+
+- name: create eth0 ifcfg files for each server
+  template: src=../templates/ifcfg-eth0 dest={{ tmp_workspace }}/{{ hostvars[item]['inventory_hostname'] }}/ifcfg-eth0
+  with_items: groups['rhev_m']
+
+# NOTE: THIS IS A RHEL 6 IMAGE!!!
+- name: Customize the virtual disk images
+  command: virt-customize -a {{ kvm_disk_dir }}/{{ hostvars[item]['inventory_hostname'] }}.qcow2
+           --hostname {{ hostvars[item]['inventory_hostname'] }}
+           --root-password password:{{ root_password }}
+           --ssh-inject root:file:{{ tmp_workspace }}/ssh_key.pub
+           --upload {{ tmp_workspace }}/{{ hostvars[item]['inventory_hostname'] }}/ifcfg-eth0:/etc/sysconfig/network-scripts/
+           --upload {{ tmp_workspace }}/hosts:/etc/hosts
+           --run-command 'chkconfig cloud-init off'
+           --firstboot-command 'service cloud-init stop'
+           --firstboot-command 'restorecon -R /root/.ssh'
+  with_items: groups['rhev_m']
+
+- name: Define guest images
+  virt: name={{ hostvars[item]['inventory_hostname'] }}
+        command=define
+        xml="{{ lookup('template', '../templates/vm.xml') }}"
+        uri=qemu:///system
+  with_items: groups['rhev_m']
+
+- name: Start the new Virtual Machines
+  virt:  name={{ hostvars[item]['inventory_hostname'] }}
+         command=start
+         uri=qemu:///system
+  with_items: groups['rhev_m']
+
+- name: make sure all vms are running
+  local_action: wait_for host={{ hostvars[item]['inventory_hostname'] }} port=22 state=started delay=5 timeout=15
+  sudo: false
+  with_items: groups['rhev_m']
+
+- name: make sure the known_hosts file exists
+  file: path={{ ssh_known_hosts_file }} state=touch
+
+- name: remove any stale entries for these virtual Machines by hostname
+  shell: "ssh-keygen -R {{ hostvars[item]['inventory_hostname'] }} -f {{ ssh_known_hosts_file}}"
+  with_items: groups['rhev_m']
+
+- name: remove any stale entries for these virtual Machines by ip
+  shell: "ssh-keygen -R {{ hostvars[item]['ip'] }} -f {{ ssh_known_hosts_file}}"
+  with_items: groups['rhev_m']
+
+- name: add the new ssh host keys by hostname
+  shell: "ssh-keyscan {{ hostvars[item]['inventory_hostname'] }} >> {{ ssh_known_hosts_file }}"
+  with_items: groups['rhev_m']
+
+- name: add the new ssh host keys by ip
+  shell: "ssh-keyscan {{ hostvars[item]['ip'] }} >> {{ ssh_known_hosts_file }}"
+  with_items: groups['rhev_m']
+
+- name: wait a few seconds to let the VM come up fully
+  pause: seconds=5
+
+- name: ensure the system is accessable
+  ping:
+  with_items: groups['rhev_m']
