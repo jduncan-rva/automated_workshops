@@ -6,6 +6,5 @@
                        password={{ rhn_pass }}
                        autosubscribe=true
 
-- name: Attach a RHEV Pool ID for RHEV-M guests
-  command: subscription-manager attach --pool={{ rhev_pool_id }}
-  when: "'rhev_m' in group_names"
+- name: attach the employee sku
+  command: subscription-manager attach --pool={{ employee_sku }}

@@ -26,6 +26,8 @@ spec:
             value: /var/certs/domain.crt
           - name: REGISTRY_HTTP_TLS_KEY
             value: /var/certs/domain.key
+          - name: REGISTRY_HTTP_SECRET
+            value: somesecret
         ports:
           - name: reg-port
             containerPort: {{ registry_port }}

@@ -9,21 +9,18 @@
   vars:
     deploy_packstack: false
     deploy_rhevm: false
-    deploy_atomic: true
-    deploy_gluster: false
+    deploy_atomic: false
+    deploy_gluster: true
   roles:
   - kvm_hypervisor
 
-- hosts: atomic_guests
+- hosts: gluster_guests
   vars:
-    patch_systems: true
-    use_nfs: false
+    patch_systems: false
   sudo: yes
   remote_user: cloud-user
   vars_files:
     - passes.yml
   roles:
   - common
-  - kvm_guests
-  - atomic
-  - atomic-demo
+  - gluster

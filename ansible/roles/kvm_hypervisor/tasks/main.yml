@@ -38,6 +38,9 @@
 - include: rhevm_guest.yml
   when: deploy_rhevm
 
+- include: gluster_guest.yml
+  when: deploy_gluster
+
 - include: atomic_guest.yml
   when: deploy_atomic
 

@@ -2,16 +2,20 @@
 192.168.122.1
 
 [packstack_guests]
-controller role=controller ip=192.168.122.130 vcpus=4 ram=7168
-compute1 role=compute ip=192.168.122.131 vcpus=4 ram=7168
+controller role=controller ip=192.168.122.130 vcpus=4 ram=7168 mac=00:1c:c4:00:00:04
+compute1 role=compute ip=192.168.122.131 vcpus=4 ram=7168 mac=00:1c:c4:00:00:05
 
 [rhev_m]
-rhevm ip=192.168.122.140 vcpus=2 ram=4096
+rhevm ip=192.168.122.140 vcpus=2 ram=4096 mac=00:1c:c4:00:00:06
 
 [rhev_h]
-rhev ip=192.168.122.141 vcpus=4 ram=8196
+rhev ip=192.168.122.141 vcpus=4 ram=8196 mac=00:1c:c4:00:00:07
 
 [atomic_guests]
 kube0 role=master ip=192.168.122.150 vcpus=2 ram=2048 mac=00:1c:c4:00:00:01
 kube1 role=node ip=192.168.122.151 vcpus=2 ram=2048 mac=00:1c:c4:00:00:02
 kube2 role=node ip=192.168.122.152 vcpus=2 ram=2048 mac=00:1c:c4:00:00:03
+
+[gluster_guests]
+gluster0 role=master ip=192.168.122.160 vcpus=1 ram=2048 mac=00:1c:c4:00:00:08
+gluster1 role=none ip=192.168.122.161 vcpus=1 ram=2048 mac=00:1c:c4:00:00:09

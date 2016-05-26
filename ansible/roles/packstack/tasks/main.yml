@@ -1,79 +1,79 @@
 # openstack packstack 3-node kvm-based demo playbook
 # Jamie Duncan - jduncan@redhat.com
 
-- name: disable all repositories so we can enable just the ones we want
-  command: subscription-manager repos --disable=\*
-
-- name: enable the needed rhel repositories
-  command: subscription-manager repos --enable={{ item }}
-  with_items: "{{ repo_channels }}"
-
-- name: install the RDO Release rpm
-  yum: name=https://rdoproject.org/repos/rdo-release.rpm state=installed
-  when: role == "controller"
-
-- name: install openstack-packstack package on the controller
-  yum: name=openstack-packstack state=latest
-  when: role == "controller"
-
-- name: update all servers
-  yum: name=* state=latest
-
-- name: disable NetworkManager
-  service: name=NetworkManager enabled=no state=stopped
-
-- name: enable legacy network service
-  service: name=network enabled=yes state=started
-
-- name: reboot each system
-  shell: sleep 2 && systemctl reboot
-  async: 1
-  poll: 0
-  ignore_errors: true
-
-- name: wait for server to come back
-  local_action: wait_for host={{ inventory_hostname }} state=started delay=30 timeout=300 port=22
-  sudo: false
-
-- name: add RDO Packstack answers file to controller
-  template: src=../templates/rdo.txt dest=/root/rdo.txt
-  when: role == "controller"
-
-- name: deploy the private key to the controller
-  copy:
-    content: "{{ packstack_ssh_priv }}"
-    dest: /root/.ssh/id_rsa
-    owner: root
-    group: root
-    mode: 0600
-  no_log: true
-  when: role == "controller"
-
-- name: deploy the public key to the controller
-  copy:
-    content: "{{ packstack_ssh_pub }}"
-    dest: /root/.ssh/id_rsa.pub
-    owner: root
-    group: root
-    mode: 0600
-  when: role == "controller"
-
-- name: deploy the public key to all nodes
-  authorized_key: user=root key="{{ packstack_ssh_pub }}"
-
-- name: add the compute ssh host keys by hostname to the controller
-  shell: "ssh-keyscan {{ hostvars[item]['inventory_hostname'] }} >> {{ ssh_known_hosts_file }}"
-  with_items: groups['packstack_guests']
-  when: role == 'controller'
-
-- name: add the compute ssh host keys by ip to the controller
-  shell: "ssh-keyscan {{ hostvars[item]['ip'] }} >> {{ ssh_known_hosts_file }}"
-  with_items: groups['packstack_guests']
-  when: role == 'controller'
-
-- name: deploy packstack
-  command: packstack --answer-file=/root/rdo.txt
-  when: role == 'controller'
+# - name: disable all repositories so we can enable just the ones we want
+#   command: subscription-manager repos --disable=\*
+#
+# - name: enable the needed rhel repositories
+#   command: subscription-manager repos --enable={{ item }}
+#   with_items: "{{ repo_channels }}"
+#
+# - name: install the RDO Release rpm
+#   yum: name=https://rdoproject.org/repos/rdo-release.rpm state=installed
+#   when: role == "controller"
+#
+# - name: install openstack-packstack package on the controller
+#   yum: name=openstack-packstack state=latest
+#   when: role == "controller"
+#
+# - name: update all servers
+#   yum: name=* state=latest
+#
+# - name: disable NetworkManager
+#   service: name=NetworkManager enabled=no state=stopped
+#
+# - name: enable legacy network service
+#   service: name=network enabled=yes state=started
+#
+# - name: reboot each system
+#   shell: sleep 2 && systemctl reboot
+#   async: 1
+#   poll: 0
+#   ignore_errors: true
+#
+# - name: wait for server to come back
+#   local_action: wait_for host={{ inventory_hostname }} state=started delay=30 timeout=300 port=22
+#   sudo: false
+#
+# - name: add RDO Packstack answers file to controller
+#   template: src=../templates/rdo.txt dest=/root/rdo.txt
+#   when: role == "controller"
+#
+# - name: deploy the private key to the controller
+#   copy:
+#     content: "{{ packstack_ssh_priv }}"
+#     dest: /root/.ssh/id_rsa
+#     owner: root
+#     group: root
+#     mode: 0600
+#   no_log: true
+#   when: role == "controller"
+#
+# - name: deploy the public key to the controller
+#   copy:
+#     content: "{{ packstack_ssh_pub }}"
+#     dest: /root/.ssh/id_rsa.pub
+#     owner: root
+#     group: root
+#     mode: 0600
+#   when: role == "controller"
+#
+# - name: deploy the public key to all nodes
+#   authorized_key: user=root key="{{ packstack_ssh_pub }}"
+#
+# - name: add the compute ssh host keys by hostname to the controller
+#   shell: "ssh-keyscan {{ hostvars[item]['inventory_hostname'] }} >> {{ ssh_known_hosts_file }}"
+#   with_items: groups['packstack_guests']
+#   when: role == 'controller'
+#
+# - name: add the compute ssh host keys by ip to the controller
+#   shell: "ssh-keyscan {{ hostvars[item]['ip'] }} >> {{ ssh_known_hosts_file }}"
+#   with_items: groups['packstack_guests']
+#   when: role == 'controller'
+#
+# - name: deploy packstack
+#   command: packstack --answer-file=/root/rdo.txt
+#   when: role == 'controller'
 
 - name: enable dnsmasq on the controller
   service: name=dnsmasq enabled=yes state=started

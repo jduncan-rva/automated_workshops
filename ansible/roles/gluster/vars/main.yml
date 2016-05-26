@@ -1,0 +1,16 @@
+repo_channels:
+  - rhel-7-server-rpms
+  - rh-gluster-3-for-rhel-7-server-rpms
+  - rh-gluster-3-nfs-for-rhel-7-server-rpms
+  - rh-gluster-3-samba-for-rhel-7-server-rpms
+
+gluster_bricks:
+  - brick1
+  - brick2
+
+#size in MB for each brick
+brick_size: 1024
+
+vg_name: vg_gluster
+
+ssh_known_hosts_file: /root/.ssh/known_hosts

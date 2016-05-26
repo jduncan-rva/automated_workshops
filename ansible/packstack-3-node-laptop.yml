@@ -6,22 +6,25 @@
 # It may well work with a disconnected hypervisor but it hasn't been tested as of yet
 # - jduncan
 
-- hosts: laptop
-  vars_files:
-    - passes.yml
-  vars:
-    deploy_packstack: true
-    deploy_rhevm: false
-    deploy_atomic: false
-  remote_user: root
-  roles:
-  - kvm_hypervisor
+# - hosts: laptop
+#   vars_files:
+#   - passes.yml
+#   vars:
+#     deploy_packstack: true
+#     deploy_rhevm: false
+#     deploy_atomic: false
+#     deploy_gluster: false
+#   remote_user: root
+#   roles:
+#   - kvm_hypervisor
 - hosts: packstack_guests
   vars_files:
     - passes.yml
   remote_user: cloud-user
+  become: yes
+  become_user: root
   roles:
-  - common  # this includes RHN registration
-  - kvm_guests
-  - packstack
+  # - common  # this includes RHN registration
+  # - kvm_guests
+  # - packstack
   - packstack-demo
