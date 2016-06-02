@@ -11,3 +11,11 @@ neutron_floating_ip_gw: 192.168.122.1
 neutron_floating_network: 192.168.122.0/24
 neutron_private_network: 192.168.77.0/24
 neutron_private_dns: 8.8.8.8
+
+gluster_bricks:
+  - brick1
+
+#size in MB for each brick
+brick_size: 1024
+
+vg_name: vg_gluster

@@ -1,0 +1,28 @@
+# Atomic 3-node kubernetes with gluster storage
+# - jduncan
+
+- hosts: laptop
+  vars_files:
+    - passes.yml
+  remote_user: root
+  sudo: yes
+  vars:
+    group: cfme
+    gluster: false
+    cfme: true
+    # The Red Hat supplied CFME image
+    disk_image: /home/jduncan/Downloads/cfme-rhos-5.5.4.2-1.x86_64.qcow2
+  roles:
+  - kvm_hypervisor
+
+- hosts: cfme
+  # sudo: yes
+  remote_user: root
+  vars_files:
+    - passes.yml
+  vars:
+    db_backup_file: /home/jduncan/Downloads/cf4dbbackup
+    db_key_file: /home/jduncan/Downloads/v2_key
+  roles:
+  - common
+  - cloudforms

@@ -1,16 +1,13 @@
-# Atomic 3-node kubernetes with gluster storage
-# - jduncan
-
 - hosts: laptop
   vars_files:
     - passes.yml
-  remote_user: root
+  remote_user: cloud-user
   sudo: yes
   vars:
-    deploy_packstack: false
-    deploy_rhevm: false
-    deploy_atomic: true
-    deploy_gluster: false
+    group: atomic
+    ansible: true
+    # The Red Hat supplied RHEL 7 Atomic Host image
+    disk_image: /home/jduncan/Downloads/rhel-atomic-cloud-7.2-12.x86_64.qcow2
   roles:
   - kvm_hypervisor
 
@@ -23,7 +20,7 @@
   vars_files:
     - passes.yml
   roles:
-  - common
-  - kvm_guests
-  - atomic
+  # - common
+  # - kvm_guests
+  # - atomic
   - atomic-demo

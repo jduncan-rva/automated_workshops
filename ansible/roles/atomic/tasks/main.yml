@@ -1,6 +1,34 @@
 # openstack packstack 3-node kvm-based demo playbook
 # Jamie Duncan - jduncan@redhat.com
 
+- name: create vg and pv for gluster
+  lvg: vg={{ vg_name }} pvs=/dev/vdb state=present
+
+- name: create logical volumes for gluster bricks
+  lvol: vg=vg_gluster lv={{ item }} size={{ brick_size }}
+  with_items: "{{ gluster_bricks }}"
+
+- name: create xfs filesystem for each brick
+  filesystem: fstype=xfs dev=/dev/{{ vg_name }}/{{ item }}
+  with_items: "{{ gluster_bricks }}"
+
+- name: create /etc/glusterfs
+  file: path=/etc/glusterfs state=directory
+
+- name: create /var/lib/glusterd
+  file: path=/var/lib/glusterd state=directory
+
+- name: create /var/log/glusterfs
+  file: path=/var/lib/glusterfs state=directory
+
+- name: create directories for brick mountpoints
+  file: path=/mnt/{{ item }} state=directory mode=0755
+  with_items: "{{ gluster_bricks }}"
+
+- name: mount the xfs volumes for each brick
+  mount: name=/mnt/{{ item }} src=/dev/{{ vg_name }}/{{ item }} fstype=xfs state=mounted
+  with_items: "{{ gluster_bricks }}"
+
 - name: Check for an Atomic Host upgrade
   command: atomic host upgrade
   register: atomic_upgrade

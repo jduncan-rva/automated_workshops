@@ -1,0 +1,41 @@
+kind: ReplicationController
+apiVersion: v1
+metadata:
+  name: registry-rc
+  labels:
+    name: registry-rc
+spec:
+  replicas: 2
+  selector:
+    name: registry
+  template:
+    metadata:
+      labels:
+        name: registry
+    spec:
+      containers:
+      - name: registry
+        image: docker.io/registry:2
+        volumeMounts:
+        - mountPath: "/var/certs:z"
+          name: certdir
+        - mountPath: "/var/lib/registry/docker"
+          name: registrydir
+        env:
+          - name: REGISTRY_HTTP_TLS_CERTIFICATE
+            value: /var/certs/domain.crt
+          - name: REGISTRY_HTTP_TLS_KEY
+            value: /var/certs/domain.key
+          - name: REGISTRY_HTTP_SECRET
+            value: somesecret
+        ports:
+          - name: reg-port
+            containerPort: 5000
+      volumes:
+        - name: certdir
+          hostPath:
+            path: "/var/certs"
+        - name: registrydir
+          glusterfs:
+            endpoints: "glusterfs-cluster"
+            path: "/demo_vol"

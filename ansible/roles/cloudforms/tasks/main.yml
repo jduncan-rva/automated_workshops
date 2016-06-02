@@ -1,0 +1,61 @@
+- name: create vg and pv for cfme
+  lvg: vg=vg_cfme pvs=/dev/vdb state=present
+
+- name: create logical volumes
+  lvol: vg=vg_cfme lv=data size=10000
+
+- name: create ext4 filesystem
+  #filesystem: fstype=ext4 dev=/dev/vg_cfme/data resizefs=yes
+  command: mkfs.ext4 /dev/vg_cfme/data
+
+- name: grow the ext4 data filesystem
+  command: resize2fs /dev/mapper/vg_cfme-data
+
+- name: mount the ext4 volume for the cfme database
+  mount: name=/var/opt/rh/rh-postgresql94/lib/pgsql/data/ src=/dev/vg_cfme/data fstype=ext4 state=mounted
+
+- name: disable all repositories so we can enable just the ones we want
+  command: subscription-manager repos --disable=\*
+
+- name: enable the needed rhel repositories
+  command: subscription-manager repos --enable={{ item }}
+  with_items: "{{ repo_channels }}"
+
+- name: install psycopg2 python module
+  package: name=python-psycopg2 state=present
+
+- name: set the timezone
+  command: timedatectl set-timezone {{ timezone }}
+
+- name: set ntp on
+  command: timedatectl set-ntp true
+
+- name: run appliance_control
+  command: appliance_console_cli --host={{ inventory_hostname }} --region=919 --internal --password={{ cfme_password }} --key --force-key
+
+- name: stop the evmserverd service
+  service: name=evmserverd state=stopped
+
+- name: drop the  vmdb_production database
+  postgresql_db: name=vmdb_production state=absent
+
+- name: create a new vmdb_production database
+  postgresql_db: name=vmdb_production
+
+- name: create a .pgpass file for root
+  template: src=../templates/pgpass dest=/root/.pgpass mode=0600
+
+- name: upload the database restoration
+  copy: src={{ db_backup_file }} dest={{db_backup_dest_file}}
+
+- name: upload the database key
+  copy: src={{ db_key_file }} dest={{db_dest_key}}
+
+- name: restore the database
+  command: pg_restore -e -U root -w -d vmdb_production {{ db_backup_dest_file}}
+
+- name: clean up pgpass
+  file: name=/root/.pgpass state=absent
+
+- name: clean up db backup
+  file: name={{ db_backup_dest_file }} state=absent

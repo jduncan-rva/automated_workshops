@@ -1,44 +1,120 @@
-- name: create kubernetes template for registry service
-  template: src=../templates/registry-service.yaml dest=/root/registry-service.yaml
+# - name: create kubernetes template for registry service
+#   template: src=../templates/registry-service.yaml dest=/root/registry-service.yaml
+#
+#   when: role == 'master'
+# - name: create kubernetes template for registry replication controller
+#
+#   template: src=../templates/registry-controller.yaml dest=/root/registry-controller.yaml
+#   when: role == 'master'
+#
+# - name: create kubernetes template for registry replication controller with nfs
+#   template: src=../templates/registry-controller-nfs.yaml dest=/root/registry-controller-nfs.yaml
+#   when: role == 'master'
+
+- name: create kubernetes template for registry replication controller with gluster
+  template: src=../templates/registry-controller-gluster.yaml dest=/root/registry-controller-gluster.yaml
   when: role == 'master'
-- name: create kubernetes template for registry replication controller
-  template: src=../templates/registry-controller.yaml dest=/root/registry-controller.yaml
+
+- name: create gluster cluster endpoints template
+  template: src=../templates/gluster-endpoints.yaml dest=/root/gluster-endpoints.yaml
   when: role == 'master'
-- name: create kubernetes template for registry replication controller with nfs
-  template: src=../templates/registry-controller-nfs.yaml dest=/root/registry-controller-nfs.yaml
-  when: role == 'master'
-- name: create the certificate directory for each node
-  file: path=/etc/docker/certs.d/kube1.example.com:5000 state=directory
+
+#
+# - name: create the certificate directory for each node
+#   file: path=/etc/docker/certs.d/kube1.example.com:5000 state=directory
+#   when: role == 'node'
+#
+# - name: add the registry certificate for docker
+#   template: src=../templates/certs/domain.crt dest=/etc/docker/certs.d/kube1.example.com:5000/ca.crt
+#   when: role == 'node'
+#
+# - name: create the certs directory to mount into the registry container
+#   file: path=/var/certs state=directory
+#   when: role == 'node'
+#
+# - name: add the registry cert to /var/certs
+#   template: src=../templates/certs/domain.crt dest=/var/certs/domain.crt
+#   when: role == 'node'
+#
+# - name: add the registry key to /var/certs
+#   template: src=../templates/certs/domain.key dest=/var/certs/domain.key
+#   when: role == 'node'
+#
+# - name: set selinux boolean to allow pods to use nfs
+#   seboolean: name=virt_use_nfs state=yes persistent=yes
+#   when: role == 'node'
+#
+# - name: pull down the docker.io/register:2 image
+#   docker:
+#     registry: "docker.io"
+#     image: "docker.io/registry:2"
+#     state: present
+#     insecure_registry: yes
+#   when: role == 'node'
+#
+# - name: pull down the gluster server image
+#   docker:
+#     registry: "registry.access.redhat.com"
+#     image: "registry.access.redhat.com/rhgs3/rhgs-server-rhel7"
+#     state: present
+#     insecure_registry: yes
+#   when: role == 'node'
+#
+# - name: create registry service
+#   command: kubectl create -f /root/registry-service-gluster.yaml
+#   when: role == 'master' and provision_demo == 'true'
+#
+# - name: create registry replication controller without nfs-based storage
+#   command: kubectl create -f /root/registry-controller-nfs.yaml
+#   when: role == 'master' and provision_demo == 'true'
+
+# - name: create glusterdata container
+#   docker_container:
+#     name: glusterdata
+#     image: registry.access.redhat.com/rhgs3/rhgs-server-rhel7
+#     volumes:
+#       - /etc/glusterfs[:z]
+#       - /var/lib/glusterd[:z]
+#       - /var/log/glusterfs/var/log/glusterfs[:z]
+#       - /sys/fs/cgroup[:ro]
+#     command: /usr/sbin/setup.sh
+#     detach: False
+#   when: role == 'node'
+#
+# - name: create glusterfs server container
+#   docker_container:
+#     name: gluster-fs
+#     image: registry.access.redhat.com/rhgs3/rhgs-server-rhel7
+#     privileged: yes
+#     network_mode: host
+#     volumes_from: glusterdata
+#     volumes:
+#       - /mnt/brick1:/mnt/container_brick1[:z]
+
+- name: create glusterdata container
+  command: docker run --name glusterdata  -v /etc/glusterfs:/etc/glusterfs:z -v /var/lib/glusterd:/var/lib/glusterd:z -v /var/log/glusterfs:/var/log/glusterfs:z -v /sys/fs/cgroup:/sys/fs/cgroup:ro registry.access.redhat.com/rhgs3/rhgs-server-rhel7 /usr/sbin/setup.sh
   when: role == 'node'
-- name: add the registry certificate for docker
-  template: src=../templates/certs/domain.crt dest=/etc/docker/certs.d/kube1.example.com:5000/ca.crt
+
+- name: create glusterfs server container
+  command: docker run -d --privileged=true --net=host --name gluster_server --volumes-from glusterdata -v /mnt/brick1:/mnt/container_brick1:z registry.access.redhat.com/rhgs3/rhgs-server-rhel7
   when: role == 'node'
-- name: create the certs directory to mount into the registry container
-  file: path=/var/certs state=directory
+
+# since this is in the container and the docker_container module doesn't yet work in Atomic, this is a hack to let the service get started up
+- name: wait for a few seconds
+  command: sleep 3
+
+- name: execute peer probe
+  command: docker exec -i gluster_server /bin/bash -c 'gluster peer probe kube2.example.com'
+  when: inventory_hostname == 'kube1'
+
+- name: create a directory for a volume
+  file: path=/mnt/container_brick1/demo_vol state=directory
   when: role == 'node'
-- name: add the registry cert to /var/certs
-  template: src=../templates/certs/domain.crt dest=/var/certs/domain.crt
-  when: role == 'node'
-- name: add the registry key to /var/certs
-  template: src=../templates/certs/domain.key dest=/var/certs/domain.key
-  when: role == 'node'
-- name: set selinux boolean to allow pods to use nfs
-  seboolean: name=virt_use_nfs state=yes persistent=yes
-  when: role == 'node'
-- name: pull down the docker.io/register:2 image
-  docker:
-    registry: "docker.io"
-    image: "docker.io/registry:2"
-    state: present
-    insecure_registry: yes
-  when: role == 'node'
-- name: create registry service
-  command: kubectl create -f /root/registry-service.yaml
-  when: role == 'master' and provision_demo == 'true'
-- name: create registry replication controller without nfs-based storage
-  command: kubectl create -f /root/registry-controller-nfs.yaml
-  when: role == 'master' and provision_demo == 'true' and use_nfs == 'false'
-- name: create registry replication controller with nfs-based storage
-  command: kubectl create -f /root/registry-controller.yaml
-  when: role == 'master' and provision_demo == 'true' and use_nfs == 'true'
-  
+
+- name: create a gluster volume
+  command: docker exec -i gluster_server /bin/bash -c 'gluster volume create demo_vol kube1.example.com:/mnt/container_brick1/demo_vol'
+  when: inventory_hostname == 'kube1'
+
+- name: start the gluster volume
+  command: docker exec -i gluster_server /bin/bash -c 'gluster volume start demo_vol'
+  when: inventory_hostname == 'kube1'
