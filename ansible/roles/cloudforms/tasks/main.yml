@@ -5,8 +5,7 @@
   lvol: vg=vg_cfme lv=data size=10000
 
 - name: create ext4 filesystem
-  #filesystem: fstype=ext4 dev=/dev/vg_cfme/data resizefs=yes
-  command: mkfs.ext4 /dev/vg_cfme/data
+  filesystem: fstype=ext4 dev=/dev/vg_cfme/data resizefs=yes
 
 - name: grow the ext4 data filesystem
   command: resize2fs /dev/mapper/vg_cfme-data
@@ -59,3 +58,6 @@
 
 - name: clean up db backup
   file: name={{ db_backup_dest_file }} state=absent
+
+- name: ensure the admin password is what we want it to be
+  command: /var/www/miq/vmdb/script/rails r "User.find_by_userid('admin').update_attributes(:password => '{{cfme_password}}')"

@@ -1,6 +1,3 @@
-# Prepares a system to be a hypervsior and sets up the hosts group 'guests' as kvm guests
-# Jamie Duncan
-
 - name: ensure kvm is installed and started
   service: name=libvirtd state=started enabled=yes
   register: libvirtd
@@ -43,10 +40,10 @@
   copy: src={{ disk_image }} dest={{ kvm_disk_dir }}/{{ hostvars[item]['inventory_hostname'] }}.qcow2
   with_items: "{{ groups[group] }}"
 
+# Each VM will have a 10G data disk that can be formatted / mounted wherever you want.
 - name: create disk for data
-  command: qemu-img create -f qcow2 -o preallocation=full {{ kvm_disk_dir }}/{{ hostvars[item]['inventory_hostname'] }}-2.qcow2 10G
+  command: qemu-img create -f qcow2 -o preallocation=metadata {{ kvm_disk_dir }}/{{ hostvars[item]['inventory_hostname'] }}-data.qcow2 10G
   with_items: "{{ groups[group] }}"
-  when: gluster == true or cfme == true
 
 - name: create temporary folder for host disk customization
   file: name={{ tmp_workspace }}/{{ hostvars[item]['inventory_hostname'] }} state=directory
@@ -72,15 +69,10 @@
   copy: src={{ tmp_workspace }}/{{ hostvars[item]['inventory_hostname'] }}-ci.iso dest={{ kvm_disk_dir }}/{{ hostvars[item]['inventory_hostname'] }}-ci.iso
   with_items: "{{ groups[group] }}"
 
-- name: look for previously defined vm's
-  shell: virsh list --all | wc -l
-  register: vm_count
-
 - name: undefine previous virtual machines
   command: virsh undefine {{ hostvars[item]['inventory_hostname']}}
   ignore_errors: true
   with_items: "{{ groups[group] }}"
-  when: vm_count > 3
 
 - name: Define guest images
   virt: name={{ hostvars[item]['inventory_hostname'] }}
@@ -88,15 +80,6 @@
         xml="{{ lookup('template', '../templates/vm.xml') }}"
         uri=qemu:///system
   with_items: "{{ groups[group] }}"
-  when: gluster == false and cfme == false
-
-- name: Define guest images for gluster
-  virt: name={{ hostvars[item]['inventory_hostname'] }}
-        command=define
-        xml="{{ lookup('template', '../templates/vm-2disk.xml') }}"
-        uri=qemu:///system
-  with_items: "{{ groups[group] }}"
-  when: gluster == true or cfme == true
 
 - name: remove any static ips from libvirt
   command: virsh net-update default delete ip-dhcp-host '<host mac="{{ hostvars[item]['mac'] }}" ip="{{ hostvars[item]['ip'] }}"/>' --config --live
