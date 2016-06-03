@@ -16,6 +16,6 @@ gluster_bricks:
   - brick1
 
 #size in MB for each brick
-brick_size: 1024
+brick_size: 4096
 
 vg_name: vg_gluster

@@ -75,6 +75,23 @@ To deploy:
 ansible-playbook rhev-demo.yml -i hosts --ask-vault-pass
 ```
 
+### demo-cleanup.yml
+
+Believe it or not, you CAN have VM sprawl on a single laptop. This helps stop that. You feed it the group name (from the `hosts` file) and it will clear out all of the artifacts from that demo installation.
+
+* VM configs
+* VM disks
+* SSH Key Entries
+
+To deploy:
+```
+ansible-playbook -i hosts --extra-vars "group=<group-name>" demo-cleanup.yml
+```
+
+Example: to clean up at atomic cluster demo:
+```
+ansible-playbook -i hosts --extra-vars "group=atomic" demo-cleanup.yml
+```
 ## TODO
 
 * start the documentation side of the tool

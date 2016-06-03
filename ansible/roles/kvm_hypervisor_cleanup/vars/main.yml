@@ -1,0 +1,7 @@
+kvm_disk_dir: /var/lib/libvirt/images
+root_password: redhat01
+
+tmp_workspace: /tmp/ansible-tmp
+
+ssh_known_hosts_command: "ssh-keyscan -H -T 10"
+ssh_known_hosts_file: "/home/jduncan/.ssh/known_hosts"

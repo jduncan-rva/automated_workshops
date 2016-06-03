@@ -1,0 +1,7 @@
+- hosts: laptop
+  remote_user: root
+  become: yes
+  become_method: sudo
+  become_user: root
+  roles:
+  - kvm_hypervisor_cleanup
