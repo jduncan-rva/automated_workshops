@@ -26,6 +26,20 @@
 - name: create hosts file for hypervisor
   template: src=../templates/hosts dest=/etc/hosts
 
+- name: power down any old instances of this group
+  virt: name={{ hostvars[item]['inventory_hostname'] }}
+        command=destroy
+        uri=qemu:///system
+  ignore_errors: true
+  with_items: "{{ groups[group] }}"
+
+- name: undefine any old instances of this group
+  virt: name={{ hostvars[item]['inventory_hostname'] }}
+        command=undefine
+        uri=qemu:///system
+  ignore_errors: true
+  with_items: "{{ groups[group] }}"
+
 - name: clean up any old disk images
   file: name={{ kvm_disk_dir }}/{{ hostvars[item]['inventory_hostname'] }}.qcow2 state=absent
   with_items: "{{ groups[group] }}"
@@ -33,6 +47,11 @@
 
 - name: clean up any cloud-init ISOs
   file: name={{ kvm_disk_dir }}/{{ hostvars[item]['inventory_hostname'] }}-ci.iso state=absent
+  with_items: "{{ groups[group] }}"
+  ignore_errors: true
+
+- name: clean up any old data disk images
+  file: name={{ kvm_disk_dir }}/{{ hostvars[item]['inventory_hostname'] }}-data.qcow2 state=absent
   with_items: "{{ groups[group] }}"
   ignore_errors: true
 
@@ -67,11 +86,6 @@
 
 - name: copy over cloud-init ISOs
   copy: src={{ tmp_workspace }}/{{ hostvars[item]['inventory_hostname'] }}-ci.iso dest={{ kvm_disk_dir }}/{{ hostvars[item]['inventory_hostname'] }}-ci.iso
-  with_items: "{{ groups[group] }}"
-
-- name: undefine previous virtual machines
-  command: virsh undefine {{ hostvars[item]['inventory_hostname']}}
-  ignore_errors: true
   with_items: "{{ groups[group] }}"
 
 - name: Define guest images

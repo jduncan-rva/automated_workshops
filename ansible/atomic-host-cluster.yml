@@ -1,26 +1,29 @@
 - hosts: laptop
   vars_files:
     - passes.yml
-  remote_user: cloud-user
-  sudo: yes
+  remote_user: root
+  become: yes
+  become_method: sudo
+  become_user: root
   vars:
     group: atomic
-    ansible: true
     # The Red Hat supplied RHEL 7 Atomic Host image
     disk_image: /home/jduncan/Downloads/rhel-atomic-cloud-7.2-12.x86_64.qcow2
   roles:
   - kvm_hypervisor
 
-- hosts: atomic_guests
+- hosts: atomic
   vars:
     patch_systems: true
     use_nfs: false
-  sudo: yes
+  become: yes
+  become_method: sudo
+  become_user: root
   remote_user: cloud-user
   vars_files:
     - passes.yml
   roles:
-  # - common
-  # - kvm_guests
-  # - atomic
+  - common
+  - kvm_guests
+  - atomic
   - atomic-demo
