@@ -95,4 +95,3 @@ ansible-playbook -i hosts --extra-vars "group=atomic" demo-cleanup.yml
 ## TODO
 
 * start the documentation side of the tool
-* destroying VMs isn't as solid as it needs to be
