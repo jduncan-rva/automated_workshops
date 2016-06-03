@@ -1,17 +1,18 @@
 - hosts: laptop
   vars_files:
     - passes.yml
-  remote_user: cloud-user
-  sudo: yes
+  remote_user: root
+  become: yes
+  become_user: root
+  become_method: sudo
   vars:
     group: gluster
-    gluster: false
     # The Red Hat supplied RHEL 7 image
     disk_image: /home/jduncan/Downloads/rhel-guest-image-7.2-20160219.1.x86_64.qcow2
   roles:
   - kvm_hypervisor
 
-- hosts: gluster_guests
+- hosts: gluster
   vars:
     patch_systems: false
   sudo: yes

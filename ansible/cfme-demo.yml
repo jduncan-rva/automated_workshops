@@ -5,7 +5,9 @@
   vars_files:
     - passes.yml
   remote_user: root
-  sudo: yes
+  become: yes
+  become_user: root
+  become_method: sudo
   vars:
     group: cfme
     gluster: false
