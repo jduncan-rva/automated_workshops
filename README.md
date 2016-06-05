@@ -19,8 +19,6 @@ In the base directory, you will need to use [ansible vault](http://docs.ansible.
 
 * rhn_user : your RHN user account
 * rhn_pass : your RHN account password
-* packstack_ssh_priv: a private key that the packstack playbook will use to deploy packstack
-* packstack_ssh_pub: the corresponding public key for `packstack_ssh_priv`
 
 ## Playbooks
 
@@ -58,6 +56,8 @@ ansible-playbook guster-2-node.yml -i hosts --ask-vault-pass
 ### packstack-demo.yml
 
 This builds out a 2-node packstack demo using nested virtualization. It pulls from the latest stable RDO version of OpenStack. The packstack-demo role also uploads several images and artifacts into the OpenStack instance to seed it for a customer-facing demo.
+
+There is a variable called `ssh_key` in the playbook. This is the ssh key you want packstack to use to deploy itself. it will be associated with `root` all of the packstack nodes. It can be any sort of ssh key you like. Just make sure it's not password protected or anything like that.
 
 To deploy:
 ```
