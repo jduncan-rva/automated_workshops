@@ -4,7 +4,7 @@
 # been installed on the remote servers, the user is prompted for a
 # password and this key is installed so the password will not be
 # required again.
-CONFIG_SSH_KEY=/root/.ssh/id_rsa.pub
+CONFIG_SSH_KEY=/root/.ssh/id_rsa2.pub
 
 # Default password to be used everywhere (overridden by passwords set
 # for individual services or users).
@@ -83,7 +83,7 @@ CONFIG_CONTROLLER_HOST={{ ip }}
 
 # List the servers on which to install the Compute service.
 {% set comma = joiner(",") %}
-CONFIG_COMPUTE_HOSTS={% for host in groups['packstack_guests'] %}{% if hostvars[host]['role'] == 'compute' %}{{ comma() }}{{ hostvars[host]['ip'] }}{% endif %}{% endfor %}
+CONFIG_COMPUTE_HOSTS={% for host in groups['packstack'] %}{% if hostvars[host]['role'] == 'compute' %}{{ comma() }}{{ hostvars[host]['ip'] }}{% endif %}{% endfor %}
 
 
 

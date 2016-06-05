@@ -3,22 +3,25 @@
   - passes.yml
   vars:
     group: packstack
-    gluster: false
     # The Red Hat supplied RHEL 7 image
     disk_image: /home/jduncan/Downloads/rhel-guest-image-7.2-20160219.1.x86_64.qcow2
-  remote_user: cloud-user
-  sudo: yes
+  remote_user: root
+  become: yes
+  become_method: sudo
+  become_user: root
   roles:
   - kvm_hypervisor
 
-- hosts: packstack_guests
+- hosts: packstack
   vars_files:
     - passes.yml
+  vars:
+    # ssh key you want packstack to use to deploy
+    ssh_key: /home/jduncan/.ssh/id_rsa
   remote_user: cloud-user
   become: yes
   become_user: root
   roles:
   - common
-  - kvm_guests
   - packstack
   - packstack-demo
