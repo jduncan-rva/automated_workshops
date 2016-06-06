@@ -24,6 +24,5 @@
     - passes.yml
   roles:
   - common
-  - kvm_guests
   - atomic
   - atomic-demo
