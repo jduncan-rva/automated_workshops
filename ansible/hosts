@@ -22,3 +22,7 @@ gluster1 role=none ip=192.168.122.161 vcpus=1 ram=2048 mac=00:1c:c4:00:00:09
 
 [cfme]
 cfme ip=192.168.122.170 vcpus=4 ram=8096 mac=00:1c:c4:00:00:10
+
+[rhel]
+rhel1 ip=192.168.122.180 vcpus=2 ram=2048 mac=00:1c:c4:00:00:11
+rhel2 ip=192.168.122.181 vcpus=2 ram=2048 mac=00:1c:c4:00:00:12

@@ -18,3 +18,6 @@
 {% for host in groups['cfme'] %}
 {{ hostvars[host]['ip'] }} {{ hostvars[host]['inventory_hostname'] }}  {{ hostvars[host]['inventory_hostname'] }}.{{ domain }}
 {% endfor %}
+{% for host in groups['rhel'] %}
+{{ hostvars[host]['ip'] }} {{ hostvars[host]['inventory_hostname'] }}  {{ hostvars[host]['inventory_hostname'] }}.{{ domain }}
+{% endfor %}

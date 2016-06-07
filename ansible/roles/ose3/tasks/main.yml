@@ -38,8 +38,16 @@
   template: src=../templates/certs/domain.key dest=/var/certs/domain.key
   when: role == 'node'
 
-- name: set selinux boolean to allow pods to use fusefs
-  seboolean: name=virt_use_fusefs state=yes persistent=yes
+- name: set selinux boolean to allow pods to use nfs
+  seboolean: name=virt_use_nfs state=yes persistent=yes
+  when: role == 'node'
+
+- name: pull down the docker.io/register:2 image
+  docker:
+    registry: "docker.io"
+    image: "docker.io/registry:2"
+    state: present
+    insecure_registry: yes
   when: role == 'node'
 
 - name: pull down the gluster server image
@@ -49,6 +57,14 @@
     state: present
     insecure_registry: yes
   when: role == 'node'
+
+- name: create registry service
+  command: kubectl create -f /root/registry-service-gluster.yaml
+  when: role == 'master' and provision_demo == 'true'
+
+- name: create registry replication controller without nfs-based storage
+  command: kubectl create -f /root/registry-controller-nfs.yaml
+  when: role == 'master' and provision_demo == 'true'
 
 # As of right now, docker_container requires py-docker to be isntalled. This isn't available in the baseos for Atomic Host.
 # I opened https://github.com/ansible/ansible-modules-core/issues/3762 to hopefully help address this
