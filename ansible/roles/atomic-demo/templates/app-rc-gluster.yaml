@@ -1,0 +1,29 @@
+kind: ReplicationController
+apiVersion: v1
+metadata:
+  name: php-demo-app-rc
+  labels:
+    name: php-demo-app-rc
+spec:
+  replicas: 2
+  selector:
+    name: php-demo-app
+  template:
+    metadata:
+      labels:
+        name: php-demo-app
+    spec:
+      containers:
+      - name: registry
+        image: docker.io/jeduncan/php-demo-app
+        volumeMounts:
+        - mountPath: "/opt/app-root/src/uploads"
+          name: uploads
+        ports:
+          - name: web-port
+            containerPort: 8080
+      volumes:
+        - name: uploads
+          glusterfs:
+            endpoints: "glusterfs-cluster"
+            path: "/demo_vol"

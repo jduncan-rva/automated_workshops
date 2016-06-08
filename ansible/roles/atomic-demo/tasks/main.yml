@@ -1,13 +1,13 @@
-- name: create kubernetes template for registry service
+- name: create kubernetes template for app with ephemeral service
   template: src=../templates/registry-service.yaml dest=/root/registry-service.yaml
   when: role == 'master'
 
-- name: create kubernetes template for registry replication controller
-  template: src=../templates/registry-controller.yaml dest=/root/registry-controller.yaml
+- name: create kubernetes template for app with persistent service
+  template: src=../templates/registry-service.yaml dest=/root/registry-service-gluster.yaml
   when: role == 'master'
 
-- name: create kubernetes template for registry replication controller with nfs
-  template: src=../templates/registry-controller-nfs.yaml dest=/root/registry-controller-nfs.yaml
+- name: create kubernetes template for registry replication controller with ephemeral storage
+  template: src=../templates/registry-controller.yaml dest=/root/registry-controller.yaml
   when: role == 'master'
 
 - name: create kubernetes template for registry replication controller with gluster
@@ -18,28 +18,16 @@
   template: src=../templates/gluster-endpoints.yaml dest=/root/gluster-endpoints.yaml
   when: role == 'master'
 
-- name: create the certificate directory for each node
-  file: path=/etc/docker/certs.d/kube1.example.com:5000 state=directory
-  when: role == 'node'
-
-- name: add the registry certificate for docker
-  template: src=../templates/certs/domain.crt dest=/etc/docker/certs.d/kube1.example.com:5000/ca.crt
-  when: role == 'node'
-
-- name: create the certs directory to mount into the registry container
-  file: path=/var/certs state=directory
-  when: role == 'node'
-
-- name: add the registry cert to /var/certs
-  template: src=../templates/certs/domain.crt dest=/var/certs/domain.crt
-  when: role == 'node'
-
-- name: add the registry key to /var/certs
-  template: src=../templates/certs/domain.key dest=/var/certs/domain.key
-  when: role == 'node'
-
 - name: set selinux boolean to allow pods to use fusefs
   seboolean: name=virt_use_fusefs state=yes persistent=yes
+  when: role == 'node'
+
+- name: pull down the application demo image
+  docker:
+    registry: "docker.io"
+    image: "docker.io/{{app_image}}"
+    state: present
+    insecure_registry: yes
   when: role == 'node'
 
 - name: pull down the gluster server image

@@ -2,8 +2,8 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    name: registry
-  name: registry-service
+    name: registry-ephemeral
+  name: registry-ephemeral-service
   namespace: default
 spec:
   sessionAffinity: ClientIP
@@ -11,9 +11,9 @@ spec:
   ports:
   - name: web-registry
     protocol: TCP
-    port: {{ registry_port }}
-    targetPort: {{ registry_port }}
+    port: 8000
+    targetPort: 8080
   selector:
-    name: registry
+    name: php-demo-app-ephemeral
   deprecatedPublicIPs:
   - {{ hostvars['kube1'].ip }}
