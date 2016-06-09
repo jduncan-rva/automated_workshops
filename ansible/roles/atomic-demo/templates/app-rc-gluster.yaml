@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: app
-        image: docker.io/jeduncan/php-demo-app:demo
+        image: docker.io/jeduncan/php-demo-app
         volumeMounts:
         - mountPath: "/opt/app-root/src/uploads"
           name: uploads

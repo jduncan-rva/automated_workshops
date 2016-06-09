@@ -9,7 +9,7 @@
   with_items: "{{ kube_templates }}"
 
 - name: pull down the application demo image
-  command: docker pull jeduncan/php-demo-app:test
+  command: docker pull jeduncan/php-demo-app
   when: role == 'node'
 
 - name: pull down the gluster server image
@@ -50,7 +50,7 @@
   when: role == 'node'
 
 - name: create glusterfs server container
-  command: docker run -d --privileged=true --net=host --name gluster_server --volumes-from glusterdata -v /mnt/brick1:/mnt/container_brick1:z registry.access.redhat.com/rhgs3/rhgs-server-rhel7
+  command: docker run -d --restart=always --privileged=true --net=host --name gluster_server --volumes-from glusterdata -v /mnt/brick1:/mnt/container_brick1:z registry.access.redhat.com/rhgs3/rhgs-server-rhel7
   when: role == 'node'
 
 # since this is in the container and the docker_container module doesn't yet work in Atomic, this is a hack to let the service get started up
