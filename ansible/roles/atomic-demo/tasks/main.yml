@@ -1,33 +1,15 @@
-- name: create kubernetes template for app with ephemeral service
-  template: src=../templates/registry-service.yaml dest=/root/registry-service.yaml
-  when: role == 'master'
-
-- name: create kubernetes template for app with persistent service
-  template: src=../templates/registry-service.yaml dest=/root/registry-service-gluster.yaml
-  when: role == 'master'
-
-- name: create kubernetes template for registry replication controller with ephemeral storage
-  template: src=../templates/registry-controller.yaml dest=/root/registry-controller.yaml
-  when: role == 'master'
-
-- name: create kubernetes template for registry replication controller with gluster
-  template: src=../templates/registry-controller-gluster.yaml dest=/root/registry-controller-gluster.yaml
-  when: role == 'master'
-
-- name: create gluster cluster endpoints template
-  template: src=../templates/gluster-endpoints.yaml dest=/root/gluster-endpoints.yaml
-  when: role == 'master'
-
-- name: set selinux boolean to allow pods to use fusefs
-  seboolean: name=virt_use_fusefs state=yes persistent=yes
+- name: set selinux booleans to allow pods to use fusefs
+  seboolean: name={{ item }} state=yes persistent=yes
   when: role == 'node'
+  with_items: "{{ selinux_bools }}"
+
+- name: create kubernetes templates for demo applications
+  template: src=../templates/{{ item }} dest=/root/{{ item }}
+  when: role == 'master'
+  with_items: "{{ kube_templates }}"
 
 - name: pull down the application demo image
-  docker:
-    registry: "docker.io"
-    image: "docker.io/{{app_image}}"
-    state: present
-    insecure_registry: yes
+  command: docker pull jeduncan/php-demo-app:test
   when: role == 'node'
 
 - name: pull down the gluster server image
@@ -80,7 +62,7 @@
   when: inventory_hostname == 'kube1'
 
 - name: create a directory for a volume
-  file: path=/mnt/container_brick1/demo_vol state=directory
+  command: docker exec -i gluster_server /bin/bash -c 'mkdir -m 0777 /mnt/container_brick1/demo_vol'
   when: role == 'node'
 
 - name: create a gluster volume
@@ -90,3 +72,8 @@
 - name: start the gluster volume
   command: docker exec -i gluster_server /bin/bash -c 'gluster volume start demo_vol'
   when: inventory_hostname == 'kube1'
+
+- name: create demo services, pods, and endpoints
+  command: kubectl create -f /root/{{ item }}
+  when: role == 'master'
+  with_items: "{{ kube_templates }}"

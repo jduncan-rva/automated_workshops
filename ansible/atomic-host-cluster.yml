@@ -9,23 +9,21 @@
     group: atomic
     # The Red Hat supplied RHEL 7 Atomic Host image
     disk_image: /home/jduncan/Downloads/rhel-atomic-cloud-7.2-12.x86_64.qcow2
-    # for the demo application
-    # this is built using s2i from https://github.com/jduncan-rva/php-demo-app
-    app_image: jeduncan/php-demo-app
 
   roles:
   - kvm_hypervisor
 
 - hosts: atomic
-  vars:
-    patch_systems: true
-    use_nfs: false
   become: yes
   become_method: sudo
   become_user: root
   remote_user: cloud-user
   vars_files:
     - passes.yml
+  vars:
+    # for the demo application
+    # this is built using s2i from https://github.com/jduncan-rva/php-demo-app
+    app_image: jeduncan/php-demo-app
   roles:
   - common
   - atomic

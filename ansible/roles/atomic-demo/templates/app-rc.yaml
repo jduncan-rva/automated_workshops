@@ -1,21 +1,21 @@
 kind: ReplicationController
 apiVersion: v1
 metadata:
-  name: php-demo-app-rc-ephemeral
+  name: app-rc-eph
   labels:
-    name: php-demo-app-rc-ephemeral
+    name: app-rc-eph
 spec:
   replicas: 1
   selector:
-    name: php-demo-app-ephemeral
+    name: app-eph
   template:
     metadata:
       labels:
-        name: php-demo-app-ephemeral
+        name: app-eph
     spec:
       containers:
-      - name: php-demo-app-ephemeral
-        image: docker.io/jeduncan/php-demo-app
+      - name: app-eph
+        image: docker.io/jeduncan/php-demo-app:demo
         env:
         ports:
           - name: web-port

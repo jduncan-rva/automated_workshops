@@ -1,13 +1,13 @@
-- name: ensure kvm is installed and started
-  service: name=libvirtd state=started enabled=yes
-  register: libvirtd
-
-- name: wait for libvirtd to start up
-  pause: seconds=30
-  when: libvirtd.changed
-
-- name: ensure genisoimage is installed
-  yum: name=genisoimage state=latest
+# - name: ensure kvm is installed and started
+#   service: name=libvirtd state=started enabled=yes
+#   register: libvirtd
+#
+# - name: wait for libvirtd to start up
+#   pause: seconds=30
+#   when: libvirtd.changed
+#
+# - name: ensure genisoimage is installed
+#   yum: name=genisoimage state=latest
 
 - name: collect dns server information
   shell: grep -m 1 nameserver /etc/resolv.conf | awk '{ print $2}'

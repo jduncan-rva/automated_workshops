@@ -1,16 +1,12 @@
-# the nfs server is used for the nfs mounts to demonstrate persistent storage.
-# this playbook currently does no configuration of the nfs server.
-# it only references it
-nfs_server: { hostname: nfs.example.com", ip: "192.168.122.1"}
+kube_templates:
+  - gluster-endpoints.yaml
+  - app-rc-gluster.yaml
+  - app-rc.yaml
+  - app-service-gluster.yaml
+  - app-service.yaml
 
-# This is the port number you want the registry demo to be served from
-registry_port: "5000"
-
-# The number of replicas to spin up for the registry Demo
-registry_replicas: "1"
-nfs_registry_replicas: "2"
-
-# whether or not to provision the demo service and rc
-# and whether or not to use nfs
-provision_demo : false
-provision_with_nfs: false
+selinux_bools:
+  - virt_use_fusefs
+  - virt_sandbox_use_fusefs
+  - virt_sandbox_use_nfs
+  - virt_use_nfs
