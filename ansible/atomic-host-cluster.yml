@@ -1,6 +1,4 @@
 - hosts: laptop
-  vars_files:
-    - passes.yml
   remote_user: root
   become: yes
   become_method: sudo
@@ -9,7 +7,6 @@
     group: atomic
     # The Red Hat supplied RHEL 7 Atomic Host image
     disk_image: /home/jduncan/Downloads/rhel-atomic-cloud-7.2-12.x86_64.qcow2
-
   roles:
   - kvm_hypervisor
 
@@ -24,6 +21,12 @@
     # for the demo application
     # this is built using s2i from https://github.com/jduncan-rva/php-demo-app
     app_image: jeduncan/php-demo-app
+    # set this to true and gluster containers are deployed on each host and available for use
+    use_gluster_direct_mount: true
+    # set this to true and supply and nfs_server value and an NFS Persistent Volume and Persistent Volume Claim is created for use
+    use_nfs_pv: true
+    nfs_server: 192.168.122.1
+    nfs_volume: /var/registry-data
   roles:
   - common
   - atomic

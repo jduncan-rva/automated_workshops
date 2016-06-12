@@ -2,18 +2,18 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    name: app-eph-service
-  name: app-eph-service
+    name: app-service
+  name: app-service
   namespace: default
 spec:
   sessionAffinity: ClientIP
   type: NodePort
   ports:
-  - name: web-registry
+  - name: web
     protocol: TCP
-    port: 8000
+    port: 8002
     targetPort: 8080
   selector:
-    name: app-eph
+    name: app
   deprecatedPublicIPs:
   - {{ hostvars['kube1'].ip }}

@@ -8,6 +8,6 @@ spec:
   capacity:
     storage: 2Gi
   nfs:
-    path: /var/registry-data
-    server: 192.168.122.1
+    path: {{ nfs_volume }}
+    server: {{ nfs_server_ip }}
   persistentVolumeReclaimPolicy: Retain

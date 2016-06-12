@@ -3,7 +3,7 @@ password: redhat01
 chpasswd: { expire: False }
 ssh_pwauth: True
 ssh_authorized_keys:
-  - {{ packstack_ssh_pub }}
+  - {{ lookup('file', ssh_key) }}
 
 write_files:
 - content: |

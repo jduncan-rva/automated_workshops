@@ -1,12 +1,19 @@
 kube_templates:
-  - gluster-endpoints.yaml
-  - app-rc-gluster.yaml
-  - app-rc.yaml
-  - app-service-gluster.yaml
   - app-service.yaml
+  - app-rc.yaml
+
+gluster_templates:
+  - gluster-endpoints.yaml
+  - gluster-service.yaml
+  - app-service-gluster.yaml
+  - app-rc-gluster.yaml
+
+nfs_templates:
+  - nfs-pv.yaml
+  - nfs-pvc.yaml
+  - app-service-nfs.yaml
+  - app-rc-nfs.yaml
 
 selinux_bools:
-  - virt_use_fusefs
   - virt_sandbox_use_fusefs
   - virt_sandbox_use_nfs
-  - virt_use_nfs
