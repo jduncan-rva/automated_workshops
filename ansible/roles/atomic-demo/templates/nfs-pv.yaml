@@ -9,5 +9,5 @@ spec:
     storage: 2Gi
   nfs:
     path: {{ nfs_volume }}
-    server: {{ nfs_server_ip }}
+    server: {{ nfs_server }}
   persistentVolumeReclaimPolicy: Retain
