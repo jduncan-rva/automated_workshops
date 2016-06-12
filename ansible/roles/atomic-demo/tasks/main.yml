@@ -16,7 +16,7 @@
 - name: create nfs templates
   template: src=../templates/{{ item }} dest=/root/{{ item }}
   when: role == 'master' and use_gluster_direct_mount == true
-  with_items: "{{ gluster_templates }}" 
+  with_items: "{{ nfs_templates }}" 
 
 - name: pull down the application demo image
   command: docker pull jeduncan/php-demo-app
