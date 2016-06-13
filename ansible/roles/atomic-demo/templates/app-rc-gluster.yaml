@@ -1,20 +1,20 @@
 kind: ReplicationController
 apiVersion: v1
 metadata:
-  name: app-rc
+  name: app-rc-gluster
   labels:
-    name: app-rc
+    name: app-rc-gluster
 spec:
   replicas: 2
   selector:
-    name: app
+    name: app-gluster
   template:
     metadata:
       labels:
-        name: app
+        name: app-gluster
     spec:
       containers:
-      - name: app
+      - name: app-gluster
         image: docker.io/jeduncan/php-demo-app
         volumeMounts:
         - mountPath: "/opt/app-root/src/uploads"

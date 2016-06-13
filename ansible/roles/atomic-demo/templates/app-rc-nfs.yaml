@@ -1,20 +1,20 @@
 kind: ReplicationController
 apiVersion: v1
 metadata:
-  name: app-rc
+  name: app-rc-nfs
   labels:
-    name: app-rc
+    name: app-rc-nfs
 spec:
   replicas: 2
   selector:
-    name: app
+    name: app-nfs
   template:
     metadata:
       labels:
-        name: app
+        name: app-nfs
     spec:
       containers:
-      - name: app
+      - name: app-nfs
         image: docker.io/jeduncan/php-demo-app
         volumeMounts:
         - name: uploads
@@ -25,4 +25,4 @@ spec:
       volumes:
         - name: uploads
           persistentVolumeClaim:
-            claimName: nfs 
+            claimName: nfs

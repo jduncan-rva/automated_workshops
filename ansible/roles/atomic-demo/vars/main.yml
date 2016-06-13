@@ -17,3 +17,4 @@ nfs_templates:
 selinux_bools:
   - virt_sandbox_use_fusefs
   - virt_sandbox_use_nfs
+  - virt_use_nfs
