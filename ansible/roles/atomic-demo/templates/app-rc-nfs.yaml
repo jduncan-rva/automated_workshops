@@ -7,14 +7,14 @@ metadata:
 spec:
   replicas: 2
   selector:
-    name: app-nfs
+    name: app-rc-nfs
   template:
     metadata:
       labels:
-        name: app-nfs
+        name: app-rc-nfs
     spec:
       containers:
-      - name: app-nfs
+      - name: app-rc-nfs
         image: docker.io/jeduncan/php-demo-app
         volumeMounts:
         - name: uploads

@@ -7,14 +7,14 @@ metadata:
 spec:
   replicas: 2
   selector:
-    name: app-gluster
+    name: app-rc-gluster
   template:
     metadata:
       labels:
-        name: app-gluster
+        name: app-rc-gluster
     spec:
       containers:
-      - name: app-gluster
+      - name: app-rc-gluster
         image: docker.io/jeduncan/php-demo-app
         volumeMounts:
         - mountPath: "/opt/app-root/src/uploads"

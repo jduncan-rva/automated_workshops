@@ -7,14 +7,14 @@ metadata:
 spec:
   replicas: 1
   selector:
-    name: app
+    name: app-rc
   template:
     metadata:
       labels:
-        name: app
+        name: app-rc
     spec:
       containers:
-      - name: app
+      - name: app-rc
         image: docker.io/jeduncan/php-demo-app
         env:
         ports:
