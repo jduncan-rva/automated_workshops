@@ -14,11 +14,6 @@ spec:
         name: app-rc-nfs
     spec:
       containers:
-        env:
-        - name: STORAGE_TYPE
-          value: NFS
-        - name: AUTHOR
-          value: jduncan
       - name: app-rc-nfs
         image: docker.io/jeduncan/php-demo-app
         volumeMounts:
@@ -27,6 +22,11 @@ spec:
         ports:
           - name: web-port
             containerPort: 8080
+        env:
+          - name: STORAGE_TYPE
+            value: NFS
+          - name: AUTHOR
+            value: jduncan
       volumes:
         - name: uploads
           persistentVolumeClaim:
