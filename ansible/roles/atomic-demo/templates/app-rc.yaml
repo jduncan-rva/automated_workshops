@@ -1,20 +1,20 @@
 kind: ReplicationController
 apiVersion: v1
 metadata:
-  name: app-rc
+  name: app-rc-eph
   labels:
-    name: app-rc
+    name: app-rc-eph
 spec:
   replicas: 1
   selector:
-    name: app-rc
+    name: app-rc-eph
   template:
     metadata:
       labels:
-        name: app-rc
+        name: app-rc-eph
     spec:
       containers:
-      - name: app-rc
+      - name: app-rc-eph
         image: docker.io/jeduncan/php-demo-app
         env:
         ports:

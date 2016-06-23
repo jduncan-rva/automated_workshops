@@ -14,6 +14,6 @@ spec:
     port: 8000
     targetPort: 8080
   selector:
-    name: app-eph
+    name: app-rc-eph
   deprecatedPublicIPs:
   - {{ hostvars['kube1'].ip }}
