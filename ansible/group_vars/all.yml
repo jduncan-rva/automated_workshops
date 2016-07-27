@@ -1,0 +1,5 @@
+sub_poolid: 8a85f9815219447001521bde06da42bf
+disk_image: /home/matt.micene/Projects/atomic/vms/rhel/rhel-atomic-cloud-7.2-12.x86_64.qcow2
+kvm_disk_dir: /home/matt.micene/Projects/libvirt-store
+ssh_key: /home/matt.micene/.ssh/id_opentlc.pub
+ssh_known_hosts_file: /home/matt.micene/.ssh/known_hosts
