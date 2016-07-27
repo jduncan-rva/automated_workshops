@@ -1,4 +1,3 @@
-
 etc_hosts: "{{ lookup('file', '/etc/hosts') }}"
 tmp_workspace: /tmp/ansible-tmp
 
