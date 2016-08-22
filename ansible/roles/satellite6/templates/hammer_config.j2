@@ -1,0 +1,38 @@
+# Create envs
+hammer lifecycle-environment create --organization "{{ initial_org }}" --description 'Development' --name 'DEV' --label development --prior Library
+
+# Create view
+hammer content-view create --organization "{{ initial_org }}" \
+--name 'RHEL7_SOE' --label rhel7_base \
+--description 'Core Build for RHEL 7'
+
+hammer content-view add-repository --organization "{{ initial_org }}" \
+--name 'RHEL7_SOE' --product 'Red Hat Enterprise Linux Server' \
+--repository 'Red Hat Enterprise Linux 7 Server RPMs x86_64 7Server'
+
+hammer content-view add-repository --organization "{{ initial_org }}" \
+--name 'RHEL7_SOE' --product 'Red Hat Enterprise Linux Server' \
+--repository 'Red Hat Enterprise Linux 7 Server - Extras RPMs x86_64'
+
+hammer content-view add-repository --organization "{{ initial_org }}" \
+--name 'RHEL7_SOE' --product 'Red Hat Enterprise Linux Server' \
+--repository 'Red Hat Satellite Tools 6.1 for RHEL 7 Server RPMs x86_64'
+
+hammer content-view publish --organization "{{ initial_org }}" \
+--name RHEL7_SOE \
+--description 'Initial Publishing' --async
+
+# Promte view
+hammer content-view version promote --organization "{{ initial_org }}" \
+--content-view RHEL7_SOE --to-lifecycle-environment DEV --async
+
+# Create domain
+hammer domain create --name lab.dlt.com --organizations "{{ initial_org }}" --locations "{{ initial_loc }}"
+
+# Create hostgroup
+hammer hostgroup create --architecture x86_64 --content-view RHEL7_SOE \
+--domain lab.dlt.com --lifecycle-environment DEV \
+--locations "{{ initial_loc }}" \
+--organizations "{{ initial_org }}" \
+--puppet-ca-proxy {{ ansible_fqdn }} \
+--puppet-proxy {{ ansible_fqdn }}

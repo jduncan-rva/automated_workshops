@@ -6,7 +6,7 @@
   vars:
     group: atomic
     # The Red Hat supplied RHEL 7 Atomic Host image
-    #disk_image: /home/matt.micene/Projects/atomic/vms/rhel/rhel-atomic-cloud-7.2-12.x86_64.qcow2
+    disk_image: "{{ atomic_disk_image }}"
 
   roles:
   - kvm_hypervisor

@@ -4,7 +4,7 @@
   vars:
     group: gluster
     # The Red Hat supplied RHEL 7 image
-    # disk_image: /home/jduncan/Downloads/rhel-guest-image-7.2-20160219.1.x86_64.qcow2
+    disk_image: "{{ rhel_disk_image }}"
   roles:
   - kvm_hypervisor
 

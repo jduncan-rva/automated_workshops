@@ -64,7 +64,7 @@
 
 # Each VM will have a 10G data disk that can be formatted / mounted wherever you want.
 - name: create disk for data
-  command: qemu-img create -f qcow2 -o preallocation=metadata {{ kvm_disk_dir }}/{{ hostvars[item]['inventory_hostname'] }}-data.qcow2 10G
+  command: qemu-img create -f qcow2 -o preallocation=metadata {{ kvm_disk_dir }}/{{ hostvars[item]['inventory_hostname'] }}-data.qcow2 {{ data_disk_size }}
   with_items: "{{ groups[group] }}"
 
 - name: create temporary folder for host disk customization

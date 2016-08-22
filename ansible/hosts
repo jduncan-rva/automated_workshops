@@ -29,3 +29,6 @@ rhel2 ip=192.168.122.181 vcpus=2 ram=2048 mac=00:1c:c4:00:00:12
 
 [repo_mirror]
 rhel2 ip=192.168.122.191 vcpus=2 ram=2048 mac=00:1c:c4:00:00:13
+
+[sat62]
+satellite62 ip=192.168.122.253 vcpus=2 ram=4096 mac=52:54:00:ce:1b:1c

@@ -1,0 +1,47 @@
+mkdir ~/.hammer
+cat > .hammer/cli_config.yml <<EOF
+:foreman:
+    :host: 'https://{{ ansible_fqdn }}/'
+    :username: '{{ admin_user }}'
+    :password: '{{ admin_pass }}'
+EOF
+
+# Import subscription manifest
+hammer subscription upload --organization-id 1 --file /tmp/{{ manifest_file }}
+
+# Import puppet classes
+hammer proxy import-classes --id 1
+
+# Enable repos
+hammer repository-set enable --organization "{{ initial_org }}" \
+--product 'Red Hat Enterprise Linux Server' --basearch='x86_64' --releasever='7Server' \
+--name 'Red Hat Enterprise Linux 7 Server (RPMs)'
+
+hammer repository-set enable --organization "{{ initial_org }}"  \
+--product 'Red Hat Enterprise Linux Server' --basearch='x86_64' \
+--name 'Red Hat Enterprise Linux 7 Server - Extras (RPMs)'
+
+hammer repository-set enable --organization "{{ initial_org }}" \
+--product 'Red Hat Enterprise Linux Server' --basearch='x86_64' --releasever='7.2' \
+--name 'Red Hat Enterprise Linux 7 Server (Kickstart)'
+
+hammer repository-set enable --organization "{{ initial_org }}" \
+--product 'Red Hat Enterprise Linux Server' --basearch='x86_64' \
+--name 'Red Hat Satellite Tools 6.2 (for RHEL 7 Server) (RPMs)'
+
+# Sync repos
+hammer repository synchronize --organization "{{ initial_org }}" \
+--product 'Red Hat Enterprise Linux Server' \
+--name 'Red Hat Enterprise Linux 7 Server Kickstart x86_64 7.2' --async
+
+hammer repository synchronize --organization "{{ initial_org }}" \
+--product 'Red Hat Enterprise Linux Server'  \
+--name 'Red Hat Enterprise Linux 7 Server - Extras RPMs x86_64' --async
+
+hammer repository synchronize --organization "{{ initial_org }}" \
+--product 'Red Hat Enterprise Linux Server' \
+--name 'Red Hat Satellite Tools 6.2 for RHEL 7 Server RPMs x86_64' --async
+
+hammer repository synchronize --organization "{{ initial_org }}" \
+--product 'Red Hat Enterprise Linux Server'  \
+--name 'Red Hat Enterprise Linux 7 Server RPMs x86_64 7Server' --async
