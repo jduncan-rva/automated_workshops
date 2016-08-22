@@ -15,6 +15,7 @@
   - passes.yml
   vars:
     data_disk_size: '30G'
+    domain: lab.dlt.com
 
   remote_user: cloud-user
   become: yes

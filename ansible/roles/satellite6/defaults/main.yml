@@ -5,3 +5,4 @@ admin_pass: redhat
 initial_org: "DLT Solutions"
 initial_loc: HQ
 manifest_file: manifest_f0fc9a2f-f802-4f99-9bc8-6165f45afb7d.zip
+domain: example.com
