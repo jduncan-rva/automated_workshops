@@ -35,9 +35,12 @@ Example Playbook
 ----------------
 
 - hosts: sat62
+  vars:
+    data_disk_size: '30G'
   roles:
   - common
-  - { role: satellite6, data_disk_size: '30G' }
+  - kvm_hypervisor
+  - satellite6
 
 License
 -------

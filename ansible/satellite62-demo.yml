@@ -5,6 +5,7 @@
     group: sat62
     # The Red Hat supplied RHEL 7 image
     disk_image: "{{ rhel_disk_image }}"
+    data_disk_size: '30G'
 
   roles:
   - kvm_hypervisor
@@ -12,6 +13,8 @@
 - hosts: sat62
   vars_files:
   - passes.yml
+  vars:
+    data_disk_size: '30G'
 
   remote_user: cloud-user
   become: yes
@@ -19,4 +22,4 @@
 
   roles:
   - common
-  - { role: satellite6, data_disk_size: '30G' }
+  - satellite6

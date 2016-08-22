@@ -62,7 +62,7 @@
         lv: "lv-{{ item.name }}"
         size: "{{ item.size }}"
       with_items:
-        - { name: 'pulp', size: '30g' }
+        - { name: 'pulp', size: '100%FREE' }
       tags:
          - lvm
 
@@ -78,7 +78,7 @@
     - name: Create filesystems
       filesystem:
         fstype: "{{ fstype }}"
-        dev: "/dev/mapper/vg.{{ name }}-lv--{{ item }}"
+        dev: "/dev/mapper/vg.{{ vgname }}-lv--{{ item }}"
       with_items:
         - pulp
       tags:
@@ -87,19 +87,13 @@
     - name: Mount filesystems
       mount:
         name: "/var/lib/{{ item }}"
-        src: "/dev/mapper/vg.{{ name }}-lv--{{ item }}"
+        src: "/dev/mapper/vg.{{ vgname }}-lv--{{ item }}"
         fstype: "{{ fstype }}"
         state: mounted
       with_items:
         - pulp
       tags:
          - lvm
-
-#    - name: Register with RHT
-#      redhat_subscription:
-#        state: present
-#        activationkey: "{{ activation_key }}"
-#        org_id: "{{ org_id }}"
 
     # Updated packages for 6.2
     - name: Install Satellite packages
