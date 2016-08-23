@@ -35,7 +35,7 @@ hammer domain create --name "{{ domain }}" --organizations "{{ initial_org }}" -
 
 # Create hostgroup
 hammer hostgroup create --architecture x86_64 --content-view RHEL7_SOE \
---domain lab.dlt.com --lifecycle-environment DEV \
+--domain "{{ domain }}" --lifecycle-environment DEV \
 --locations "{{ initial_loc }}" \
 --organization "{{ initial_org }}" \
 --puppet-ca-proxy {{ ansible_fqdn }} \

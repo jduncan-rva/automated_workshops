@@ -106,25 +106,11 @@
       tags:
         - configure
 
-    - name: Configure Satellite 6
+    - name: Perform inital configuration of Satellite 6
       command: satellite-installer --scenario satellite --foreman-admin-username "{{ admin_user }}" --foreman-admin-password "{{ admin_pass }}" --foreman-initial-organization "{{ initial_org }}" --foreman-initial-location "{{ initial_loc }}"
       environment:
         LANG: en_US.utf8
         LC_ALL: en_US.utf8
-      tags:
-        - configure
-
-    - name: Copy hammer setup script
-      template:
-        src: hammer_config.j2
-        dest: /tmp/hammer_config
-      tags:
-         - configure
-
-    - name: Copy hammer setup script
-      template:
-        src: hammer_sync.j2
-        dest: /tmp/hammer_sync
       tags:
         - configure
 
@@ -133,4 +119,20 @@
         src: "{{ manifest_file }}"
         dest: /tmp/{{ manifest_file }}
       tags:
+        - configure
+
+    - name: Copy hammer setup script
+      template:
+        src: hammer_sync.j2
+        dest: /tmp/hammer_sync
+      tags:
          - configure
+      become: no
+
+    - name: Copy hammer setup script
+      template:
+        src: hammer_env.j2
+        dest: /tmp/hammer_env
+      tags:
+        - configure
+      become: no

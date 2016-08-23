@@ -4,50 +4,50 @@
 127.0.0.1		localhost.localdomain localhost
 ::1		localhost6.localdomain6 localhost6
 {% endif %}
-
-{% for host in groups['atomic'] %}
+{# Create atomic host entries #}
+{% for host in groups['atomic'] -%}
 {% if hostvars[host]['ip'] not in etc_hosts %}
 {{ hostvars[host]['ip'] }} {{ hostvars[host]['inventory_hostname'] }}  {{ hostvars[host]['inventory_hostname'] }}.{{ domain }}
 {% endif %}
 {% endfor %}
-
-{% for host in groups['cfme'] %}
+{# Create cloudforms host entries #}
+{% for host in groups['cfme'] -%}
 {% if hostvars[host]['ip'] not in etc_hosts %}
 {{ hostvars[host]['ip'] }} {{ hostvars[host]['inventory_hostname'] }}  {{ hostvars[host]['inventory_hostname'] }}.{{ domain }}
 {% endif %}
 {% endfor %}
-
-{% for host in groups['gluster'] %}
+{# Create gluster host entries #}
+{% for host in groups['gluster'] -%}
 {% if hostvars[host]['ip'] not in etc_hosts %}
 {{ hostvars[host]['ip'] }} {{ hostvars[host]['inventory_hostname'] }}  {{ hostvars[host]['inventory_hostname'] }}.{{ domain }}
 {% endif %}
 {% endfor %}
-
-{% for host in  groups['packstack'] %}
+{# Create openstack host entries #}
+{% for host in  groups['packstack'] -%}
 {% if hostvars[host]['ip'] not in etc_hosts %}
 {{ hostvars[host]['ip'] }} {{ hostvars[host]['inventory_hostname'] }}  {{ hostvars[host]['inventory_hostname'] }}.{{ domain }}
 {% endif %}
 {% endfor %}
-
-{% for host in groups['rhel'] %}
+{# Create rhel host entries #}
+{% for host in groups['rhel'] -%}
 {% if hostvars[host]['ip'] not in etc_hosts %}
 {{ hostvars[host]['ip'] }} {{ hostvars[host]['inventory_hostname'] }}  {{ hostvars[host]['inventory_hostname'] }}.{{ domain }}
 {% endif %}
 {% endfor %}
-
-{% for host in groups['rhev_m'] %}
+{# Create rhev-m host entries #}
+{% for host in groups['rhev_m'] -%}
 {% if hostvars[host]['ip'] not in etc_hosts %}
 {{ hostvars[host]['ip'] }} {{ hostvars[host]['inventory_hostname'] }}  {{ hostvars[host]['inventory_hostname'] }}.{{ domain }}
 {% endif %}
 {% endfor %}
-
-{% for host in groups['rhev_h'] %}
+{# Create rhev-h host entries #}
+{% for host in groups['rhev_h'] -%}
 {% if hostvars[host]['ip'] not in etc_hosts %}
 {{ hostvars[host]['ip'] }} {{ hostvars[host]['inventory_hostname'] }}  {{ hostvars[host]['inventory_hostname'] }}.{{ domain }}
 {% endif %}
 {% endfor %}
-
-{% for host in groups['sat62'] %}
+{# Create satellite host entries #}
+{% for host in groups['sat62'] -%}
 {% if hostvars[host]['ip'] not in etc_hosts %}
 {{ hostvars[host]['ip'] }} {{ hostvars[host]['inventory_hostname'] }}  {{ hostvars[host]['inventory_hostname'] }}.{{ domain }}
 {% endif %}
