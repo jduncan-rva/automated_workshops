@@ -9,9 +9,6 @@ EOF
 # Import subscription manifest
 hammer subscription upload --organization-id 1 --file /tmp/{{ manifest_file }}
 
-# Import puppet classes
-hammer proxy import-classes --id 1
-
 # Enable repos
 # Names gathered from `hammer repository-set available-repositories`
 

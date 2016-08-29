@@ -3,4 +3,4 @@
 fstype: xfs
 ntp_pkg: chrony
 ntpd: chronyd
-vgname: pulp
+vgname: sat6-data

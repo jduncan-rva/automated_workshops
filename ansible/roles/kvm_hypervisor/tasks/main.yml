@@ -127,7 +127,7 @@
 
 - name: make sure all vms are running
   local_action: wait_for host={{ hostvars[item]['inventory_hostname'] }} port=22 state=started delay=5 timeout=300
-  sudo: false
+  become: no
   with_items: "{{ groups[group] }}"
 
 - name: make sure the known_hosts file exists
@@ -155,7 +155,7 @@
 
 - name: collect the current username
   local_action: command whoami
-  sudo: no
+  become: no
   register: local_username
 
 - name: set the proper permissions back on known_hosts

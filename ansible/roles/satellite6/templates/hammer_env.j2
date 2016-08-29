@@ -1,3 +1,6 @@
+# Import puppet classes
+hammer proxy import-classes --id 1
+
 # Create envs
 hammer lifecycle-environment create --organization "{{ initial_org }}" --description 'Development' --name 'DEV' --label development --prior Library
 

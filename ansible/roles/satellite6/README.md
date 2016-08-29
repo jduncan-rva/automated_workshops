@@ -5,9 +5,8 @@ This role sets up a Satellite 6.2 server and creates a hammer script designed to
 
 You'll need to create a Satellite 6 in the Portal and download the manifest file to the files/ directory.
 
-To sync channels and create the orgs, run the two hammer scripts in tmp:
- `sh /tmp/hammer_sync`
- `sh /tmp/hammer_config`
+To sync channels and create the orgs, log into the satellite as `cloud-user`  and run the two hammer scripts in tmp:
+ `bash -x  /tmp/hammer_sync && bash -x /tmp/hammer_env`
 
 Role Variables
 --------------
