@@ -1,6 +1,3 @@
-# Import puppet classes
-hammer proxy import-classes --id 1
-
 # Create envs
 hammer lifecycle-environment create --organization "{{ initial_org }}" --description 'Development' --name 'DEV' --label development --prior Library
 
@@ -33,8 +30,23 @@ hammer content-view publish --organization "{{ initial_org }}" \
 hammer content-view version promote --organization "{{ initial_org }}" \
 --content-view RHEL7_SOE --to-lifecycle-environment DEV
 
+# Create activation key
+hammer activation-key create --organization "{{ initial_org }}" --lifecycle-environment DEV --unlimited-hosts --name RHEL7Base --content-view RHEL7_SOE
+
+# hack to find RHEL sub ID to add to activation key
+hammer activation-key add-subscription --organization "{{ initial_org }}" --name RHEL7Base --subscription-id $(hammer --output csv subscription list --organization "{{ initial_org }}" --search "Red Hat Enterprise Linux" | grep Red | awk -F "," '{ print $1 }')
+
 # Create domain
-hammer domain create --name "{{ domain }}" --organizations "{{ initial_org }}" --locations "{{ initial_loc }}"
+hammer domain create --name "local.{{ domain }}" --organizations "{{ initial_org }}" --locations "{{ initial_loc }}"
+
+# Add the default production environment to our org/loc
+hammer organization add-environment --name "{{ initial_org }}" --environment production
+hammer location add-environment --name "{{ initial_loc }}" --environment production
+
+# Import puppet classes
+hammer proxy import-classes --name "{{ ansible_fqdn }}" --environment production
+
+hammer medium update --name $(hammer os info --title "RedHat 7.2" | grep "{{ initial_org }}") --locations "{{ initial_loc }}"
 
 # Create hostgroup
 hammer hostgroup create --architecture x86_64 --content-view RHEL7_SOE \
@@ -44,3 +56,5 @@ hammer hostgroup create --architecture x86_64 --content-view RHEL7_SOE \
 --puppet-ca-proxy {{ ansible_fqdn }} \
 --puppet-proxy {{ ansible_fqdn }} \
 --name RHEL7Base
+
+hammer hostgroup set-parameter --hostgroup RHEL7Base --name "kt_activation_keys" --value "RHEL7Base"
