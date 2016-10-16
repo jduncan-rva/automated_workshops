@@ -1,5 +1,5 @@
 [laptop]
-192.168.122.1
+192.168.122.1 ansible_connection=local
 
 [packstack]
 controller role=controller ip=192.168.122.130 vcpus=4 ram=7168 mac=00:1c:c4:00:00:04
