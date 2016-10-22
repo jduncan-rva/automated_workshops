@@ -1,2 +1,0 @@
-instance-id: {{ hostvars[item]['inventory_hostname'] }}
-local-hostname: {{ hostvars[item]['inventory_hostname'] }}.{{ domain }}

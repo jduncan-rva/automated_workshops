@@ -1,3 +1,0 @@
-- hosts: laptop
-  roles:
-  - kvm_hypervisor_cleanup

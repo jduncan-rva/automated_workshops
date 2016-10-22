@@ -1,8 +1,0 @@
-NAME=eth0 ￼
-DEVICE=eth0
-ONBOOT=yes
-UUID={{ eth0_uuid }}
-TYPE=OVSPort
-HWADDR={{ ansible_eth0.macaddress }}
-DEVICETYPE=ovs
-OVS_BRIDGE=br-ex
