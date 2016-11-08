@@ -1,0 +1,6 @@
+---
+# vars file for satellite6
+fstype: xfs
+ntp_pkg: chrony
+ntpd: chronyd
+vgname: sat6-data

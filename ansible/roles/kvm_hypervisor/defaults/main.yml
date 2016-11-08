@@ -2,3 +2,5 @@ kvm_disk_dir: /home/matt.micene/Projects/libvirt-store
 root_password: redhat01
 ssh_key: /home/matt.micene/.ssh/id_opentlc.pub
 ssh_known_hosts_file: "/home/matt.micene/.ssh/known_hosts"
+data_disk_size: 10G
+domain: example.com

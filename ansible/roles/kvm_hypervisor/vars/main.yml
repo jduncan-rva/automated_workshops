@@ -2,7 +2,6 @@ etc_hosts: "{{ lookup('file', '/etc/hosts') }}"
 tmp_workspace: /tmp/ansible-tmp
 
 # networking parameters
-domain: example.com
 libvirt_network: default
 network: 192.168.122.0
 netmask: 255.255.255.0
