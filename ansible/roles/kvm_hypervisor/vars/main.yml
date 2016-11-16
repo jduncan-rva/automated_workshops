@@ -3,7 +3,7 @@ root_password: redhat01
 
 tmp_workspace: /tmp/ansible-tmp
 
-ssh_key: /home/jduncan/.ssh/id_rsa.pub
+ssh_key: "{{ lookup('env','HOME') }}/.ssh/id_rsa.pub"
 
 # networking parameters
 domain: example.com
@@ -13,4 +13,4 @@ netmask: 255.255.255.0
 gateway: 192.168.122.1
 
 ssh_known_hosts_command: "ssh-keyscan -H -T 10"
-ssh_known_hosts_file: "/home/jduncan/.ssh/known_hosts"
+ssh_known_hosts_file: "{{ lookup('env','HOME') }}/.ssh/known_hosts"

@@ -4,7 +4,7 @@
   vars:
     group: packstack
     # The Red Hat supplied RHEL 7 image
-    disk_image: /home/jduncan/Downloads/rhel-guest-image-7.2-20160219.1.x86_64.qcow2
+    disk_image: "{{ lookup('env','HOME') }}/Downloads/rhel-guest-image-7.2-20160302.0.x86_64.qcow2"
   remote_user: root
   become: yes
   become_method: sudo
@@ -17,7 +17,7 @@
     - passes.yml
   vars:
     # ssh key you want packstack to use to deploy
-    ssh_key: /home/jduncan/.ssh/id_rsa
+    ssh_key: "{{ lookup('env','HOME') }}/.ssh/id_rsa"
   remote_user: cloud-user
   become: yes
   become_user: root

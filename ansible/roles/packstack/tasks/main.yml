@@ -53,12 +53,12 @@
 
 - name: add the compute ssh host keys by hostname to the controller
   shell: "ssh-keyscan {{ hostvars[item]['inventory_hostname'] }} >> {{ ssh_known_hosts_file }}"
-  with_items: {{ groups['packstack'] }}
+  with_items: "{{ groups['packstack'] }}"
   when: role == 'controller'
 
 - name: add the compute ssh host keys by ip to the controller
   shell: "ssh-keyscan {{ hostvars[item]['ip'] }} >> {{ ssh_known_hosts_file }}"
-  with_items: {{ groups['packstack'] }}
+  with_items: "{{ groups['packstack'] }}"
   when: role == 'controller'
 
 - name: deploy packstack
