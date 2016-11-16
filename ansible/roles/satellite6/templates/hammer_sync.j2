@@ -1,0 +1,56 @@
+mkdir ~/.hammer
+cat > .hammer/cli_config.yml <<EOF
+:foreman:
+    :host: 'https://{{ ansible_fqdn }}/'
+    :username: '{{ admin_user }}'
+    :password: '{{ admin_pass }}'
+EOF
+
+# Import subscription manifest
+hammer subscription upload --organization-id 1 --file /tmp/{{ manifest_file }}
+
+# Enable repos
+# Names gathered from `hammer repository-set available-repositories`
+
+hammer repository-set enable --organization "{{ initial_org }}" \
+--product 'Red Hat Enterprise Linux Server' --basearch='x86_64' --releasever='7Server' \
+--name 'Red Hat Enterprise Linux 7 Server (RPMs)'
+
+hammer repository-set enable --organization "{{ initial_org }}"  \
+--product 'Red Hat Enterprise Linux Server' --basearch='x86_64' \
+--name 'Red Hat Enterprise Linux 7 Server - Extras (RPMs)'
+
+hammer repository-set enable --organization "{{ initial_org }}"  \
+--product 'Red Hat Enterprise Linux Server' --basearch='x86_64' --releasever='7Server' \
+--name 'Red Hat Enterprise Linux 7 Server - RH Common (RPMs)'
+
+hammer repository-set enable --organization "{{ initial_org }}" \
+--product 'Red Hat Enterprise Linux Server' --basearch='x86_64' \
+--name 'Red Hat Satellite Tools 6.2 (for RHEL 7 Server) (RPMs)'
+
+hammer repository-set enable --organization "{{ initial_org }}" \
+--product 'Red Hat Enterprise Linux Server' --basearch='x86_64' --releasever='7.2' \
+--name 'Red Hat Enterprise Linux 7 Server (Kickstart)'
+
+# Sync repos (ordered smallest to largest)
+# Names gathered from `hammer repository list`
+
+hammer repository synchronize --organization "{{ initial_org }}" \
+--product 'Red Hat Enterprise Linux Server' \
+--name 'Red Hat Satellite Tools 6.2 for RHEL 7 Server RPMs x86_64'
+
+hammer repository synchronize --organization "{{ initial_org }}" \
+--product 'Red Hat Enterprise Linux Server'  \
+--name 'Red Hat Enterprise Linux 7 Server - Extras RPMs x86_64'
+
+hammer repository synchronize --organization "{{ initial_org }}" \
+--product 'Red Hat Enterprise Linux Server'  \
+--name 'Red Hat Enterprise Linux 7 Server - RH Common RPMs x86_64 7Server'
+
+hammer repository synchronize --organization "{{ initial_org }}" \
+--product 'Red Hat Enterprise Linux Server' \
+--name 'Red Hat Enterprise Linux 7 Server Kickstart x86_64 7.2'
+
+hammer repository synchronize --organization "{{ initial_org }}" \
+--product 'Red Hat Enterprise Linux Server'  \
+--name 'Red Hat Enterprise Linux 7 Server RPMs x86_64 7Server'

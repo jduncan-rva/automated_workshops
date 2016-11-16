@@ -2,18 +2,26 @@
   vars_files:
   - passes.yml
   vars:
-    group: rhel
+    group: sat62
     # The Red Hat supplied RHEL 7 image
     disk_image: "{{ rhel_disk_image }}"
+    data_disk_size: '30G'
+    domain: lab.dlt.com
+
   roles:
   - kvm_hypervisor
 
-- hosts: rhel
+- hosts: sat62
   vars_files:
-    - passes.yml
+  - passes.yml
+  vars:
+    data_disk_size: '30G'
+    domain: lab.dlt.com
+
   remote_user: cloud-user
   become: yes
   become_user: root
+
   roles:
   - common
-  - rhel
+  - satellite6

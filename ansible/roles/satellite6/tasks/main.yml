@@ -1,0 +1,159 @@
+---
+# tasks file for satellite6
+- name: Set hostname to match fqdn
+  hostname:
+    name: "{{ ansible_fqdn }}"
+
+- name: Disable all repos
+  command: /usr/bin/subscription-manager repos --disable "*"
+  tags:
+    - configure
+
+- name: Enable Satellite repos
+  command: /usr/bin/subscription-manager repos --enable "{{ item }}"
+  with_items:
+    - rhel-7-server-rpms
+    - rhel-server-rhscl-7-rpms
+    - rhel-7-server-satellite-6.2-rpms
+  tags:
+    - configure
+
+- name: Install NTP
+  package:
+    name: "{{ ntp_pkg }}"
+    state: present
+  tags:
+    - configure
+
+- name: Ensure NTP up and running
+  service:
+    name: "{{ ntpd }}"
+    state: started
+    enabled: yes
+  tags:
+     - configure
+
+- name: Install LVM
+  yum:
+    name: lvm2
+    state: present
+  tags:
+     - lvm
+
+- name: Create PVs for LVM vol
+  command: /sbin/pvcreate "{{ item }}"
+  with_items:
+    - /dev/vdb
+  register: pvc_result
+  failed_when: "pvc_result.rc != 0 and 'without -f' not in pvc_result.stderr"
+  tags:
+    - lvm
+
+- name: Create VG from PVs
+  lvg:
+    vg: "vg.{{ vgname }}"
+    pvs: /dev/vdb
+  tags:
+     - lvm
+
+- name: Create LVs from VG
+  lvol:
+    vg: "vg.{{ vgname }}"
+    lv: "lv-{{ item.name }}"
+    size: "{{ item.size }}"
+  with_items:
+    - { name: 'pulp', size: '100%FREE' }
+  tags:
+     - lvm
+
+- name: Create filesystems
+  filesystem:
+    fstype: "{{ fstype }}"
+    dev: "/dev/vg.{{ vgname }}/lv-{{ item }}"
+  with_items:
+    - pulp
+  tags:
+     - lvm
+
+- name: Create mount points
+  file:
+    path: "/var/lib/{{ item }}"
+    state: directory
+  with_items:
+    - pulp
+  tags:
+     - lvm
+
+- name: Mount filesystems
+  mount:
+    name: "/var/lib/{{ item }}"
+    src: "/dev/vg.{{ vgname }}/lv-{{ item }}"
+    fstype: "{{ fstype }}"
+    state: mounted
+  with_items:
+    - pulp
+  tags:
+     - lvm
+
+# Updated packages for 6.2
+- name: Install Satellite packages
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - satellite
+    - tfm-rubygem-foreman_openscap
+    - puppet-foreman_scap_client
+  tags:
+    - configure
+
+- name: Perform inital configuration of Satellite 6
+  command: satellite-installer --scenario satellite --foreman-admin-username "{{ admin_user }}" --foreman-admin-password "{{ admin_pass }}" --foreman-initial-organization "{{ initial_org }}" --foreman-initial-location "{{ initial_loc }}"
+  environment:
+    LANG: en_US.utf8
+    LC_ALL: en_US.utf8
+  tags:
+    - configure
+
+- name: Install OpenSCAP plug-in
+  command: satellite-installer --enable-foreman-plugin-openscap
+  environment:
+    LANG: en_US.utf8
+    LC_ALL: en_US.utf8
+  tags:
+    - configure
+
+- name: Import default OpenSCAP content
+  command: foreman-rake foreman_openscap:bulk_upload:default
+  environment:
+    LANG: en_US.utf8
+    LC_ALL: en_US.utf8
+  tags:
+    - configure
+- name: Create puppet module directory
+  file:
+    state: directory
+    path: /etc/puppet/environments/production/modules
+
+- name: Upload manifest
+  copy:
+    src: "{{ manifest_file }}"
+    dest: /tmp/{{ manifest_file }}
+  tags:
+    - configure
+
+- name: Copy hammer setup script
+  template:
+    src: hammer_sync.j2
+    dest: /tmp/hammer_sync
+  tags:
+     - configure
+  become: no
+
+- name: Copy hammer setup script
+  template:
+    src: hammer_env.j2
+    dest: /tmp/hammer_env
+  tags:
+    - configure
+  become: no

@@ -4,9 +4,8 @@
   redhat_subscription: state=present
                        username={{ rhn_user }}
                        password={{ rhn_pass }}
-                       autosubscribe=true
   when: ansible_distribution == 'RedHat'
 
-- name: attach the employee sku
-  command: subscription-manager attach --pool={{ employee_sku }}
+- name: attach a valid subscription
+  command: subscription-manager attach --pool={{ sub_poolid }}
   when: ansible_distribution == 'RedHat'

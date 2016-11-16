@@ -6,12 +6,12 @@ ssh_authorized_keys:
   - {{ lookup('file', ssh_key) }}
 
 write_files:
-- content: |
+- path: /etc/hosts  
+  owner: root:root
+  permissions: '0644'
+  content: |
    127.0.0.1		localhost.localdomain localhost
    ::1		localhost6.localdomain6 localhost6
    {% for host in  groups[group] %}
-   {{ hostvars[host]['ip'] }} {{ hostvars[host]['inventory_hostname'] }}  {{ hostvars[host]['inventory_hostname'] }}.{{ domain }}
+   {{ hostvars[host]['ip'] }} {{ hostvars[host]['inventory_hostname'] }}.{{ domain }} {{ hostvars[host]['inventory_hostname'] }}
    {% endfor %}
-  owner: root:root
-  path: /etc/hosts
-  permissions: '0644'

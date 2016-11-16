@@ -4,16 +4,12 @@
 - hosts: laptop
   vars_files:
     - passes.yml
-  remote_user: root
-  become: yes
-  become_user: root
-  become_method: sudo
   vars:
     group: cfme
     gluster: false
     cfme: true
     # The Red Hat supplied CFME image
-    disk_image: "{{ lookup('env','HOME') }}/Downloads/cfme-rhos-5.6.1.2-1.x86_64.qcow2"
+    disk_image: "{{ cfme_disk_image }}"
   roles:
   - kvm_hypervisor
 

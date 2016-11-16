@@ -4,11 +4,7 @@
   vars:
     group: packstack
     # The Red Hat supplied RHEL 7 image
-    disk_image: "{{ lookup('env','HOME') }}/Downloads/rhel-guest-image-7.2-20160302.0.x86_64.qcow2"
-  remote_user: root
-  become: yes
-  become_method: sudo
-  become_user: root
+    disk_image: "{{ rhel_disk_image }}"
   roles:
   - kvm_hypervisor
 
