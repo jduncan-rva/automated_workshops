@@ -65,14 +65,10 @@
 - name: increase disk image size
   command: qemu-img resize {{ disk_image }} +30G
 
-  
+
 # Each VM will have a 30G data disk that can be formatted / mounted wherever you want.
 - name: create disk for data
-<<<<<<< HEAD
-  command: qemu-img create -f qcow2 -o preallocation=metadata {{ kvm_disk_dir }}/{{ hostvars[item]['inventory_hostname'] }}-data.qcow2 30G
-=======
   command: qemu-img create -f qcow2 -o preallocation=metadata {{ kvm_disk_dir }}/{{ hostvars[item]['inventory_hostname'] }}-data.qcow2 {{ data_disk_size }}
->>>>>>> 620febbbf52e21582f4676bf829bb206e2bea0f4
   with_items: "{{ groups[group] }}"
 
 - name: create temporary folder for host disk customization
