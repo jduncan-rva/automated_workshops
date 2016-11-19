@@ -7,7 +7,6 @@
     group: atomic
     # The Red Hat supplied RHEL 7 Atomic Host image
     disk_image: "{{ atomic_disk_image }}"
-
   roles:
   - kvm_hypervisor
 

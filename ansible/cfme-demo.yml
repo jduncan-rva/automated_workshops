@@ -19,8 +19,8 @@
   vars_files:
     - passes.yml
   vars:
-    db_backup_file: /home/jduncan/Downloads/cf4dbbackup
-    db_key_file: /home/jduncan/Downloads/v2_key
+    db_backup_file: "{{ lookup('env','HOME') }}/Downloads/cf4dbbackup"
+    db_key_file: "{{ lookup('env','HOME') }}/Downloads/v2_key"
   roles:
   - common
   - cloudforms

@@ -5,16 +5,12 @@
     group: packstack
     # The Red Hat supplied RHEL 7 image
     disk_image: "{{ rhel_disk_image }}"
-
   roles:
   - kvm_hypervisor
 
 - hosts: packstack
   vars_files:
     - passes.yml
-  vars:
-    # ssh key you want packstack to use to deploy
-    ssh_key: /home/jduncan/.ssh/id_rsa
   remote_user: cloud-user
   become: yes
   become_user: root

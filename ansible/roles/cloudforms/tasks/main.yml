@@ -1,17 +1,29 @@
 - name: create vg and pv for cfme
   lvg: vg=vg_cfme pvs=/dev/vdb state=present
 
-- name: create logical volumes
-  lvol: vg=vg_cfme lv=data size=10000
+- name: create logical volume for postgres data
+  lvol: vg=vg_cfme lv=data size=20000
 
-- name: create ext4 filesystem
+- name: create logical volume for database dumps
+  lvol: vg=vg_cfme lv=dumps size=10000
+
+- name: create ext4 filesystem on data device
   filesystem: fstype=ext4 dev=/dev/vg_cfme/data resizefs=yes
+
+- name: create ext4 filesystem on dumps device
+  filesystem: fstype=ext4 dev=/dev/vg_cfme/dumps resizefs=yes
 
 - name: grow the ext4 data filesystem
   command: resize2fs /dev/mapper/vg_cfme-data
 
+- name: grow the ext4 dumps filesystem
+  command: resize2fs /dev/mapper/vg_cfme-dumps
+
 - name: mount the ext4 volume for the cfme database
   mount: name=/var/opt/rh/rh-postgresql94/lib/pgsql/data/ src=/dev/vg_cfme/data fstype=ext4 state=mounted
+
+- name: mount the ext4 volume for the cfme database dumps
+  mount: name=/var/opt/rh/dumps src=/dev/vg_cfme/dumps fstype=ext4 state=mounted
 
 - name: disable all repositories so we can enable just the ones we want
   command: subscription-manager repos --disable=\*
@@ -20,8 +32,9 @@
   command: subscription-manager repos --enable={{ item }}
   with_items: "{{ repo_channels }}"
 
-- name: install psycopg2 python module
-  package: name=python-psycopg2 state=present
+- name: install needed packages
+  package: pkg={{item}} state=installed
+  with_items: "{{ needed_packages }}"
 
 - name: set the timezone
   command: timedatectl set-timezone {{ timezone }}
@@ -30,12 +43,12 @@
   command: timedatectl set-ntp true
 
 - name: run appliance_control
-  command: appliance_console_cli --host={{ inventory_hostname }} --region=919 --internal --password={{ cfme_password }} --key --force-key
+  command: appliance_console_cli --host={{ inventory_hostname }} --region=10 --internal --password={{ cfme_password }} --key --force-key
 
 - name: stop the evmserverd service
   service: name=evmserverd state=stopped
 
-- name: drop the  vmdb_production database
+- name: drop the vmdb_production database
   postgresql_db: name=vmdb_production state=absent
 
 - name: create a new vmdb_production database

@@ -62,7 +62,11 @@
   copy: src={{ disk_image }} dest={{ kvm_disk_dir }}/{{ hostvars[item]['inventory_hostname'] }}.qcow2
   with_items: "{{ groups[group] }}"
 
-# Each VM will have a 10G data disk that can be formatted / mounted wherever you want.
+- name: increase disk image size
+  command: qemu-img resize {{ disk_image }} +30G
+
+
+# Each VM will have a 30G data disk that can be formatted / mounted wherever you want.
 - name: create disk for data
   command: qemu-img create -f qcow2 -o preallocation=metadata {{ kvm_disk_dir }}/{{ hostvars[item]['inventory_hostname'] }}-data.qcow2 {{ data_disk_size }}
   with_items: "{{ groups[group] }}"
