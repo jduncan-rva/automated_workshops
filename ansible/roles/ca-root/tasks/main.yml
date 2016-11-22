@@ -1,0 +1,18 @@
+---
+# Tasks for installing and configuring DS
+- name: Subscribeing to CS9 channel
+  command: subscription-manager repos --enable={{ rhcs9_channel }}
+
+- name: Installing pki-ca with ECC support
+  yum: name=pki-ca state=present
+
+- name: Copying pkispawn config to host
+  template: src=spawn_root_ca_ECC.j2 dest=/root/ca_root_ecc.txt owner=root group=root mode=0644
+
+- name: Configure firewalld
+  firewalld: port={{ item }} permanent=true state=enabled
+  with_items: "{{ cs_firewall_ports }}"
+  
+- name: Configuring CA
+  command: /usr/sbin/pkispawn -s CA -f /root/ca_root_ecc.txt
+

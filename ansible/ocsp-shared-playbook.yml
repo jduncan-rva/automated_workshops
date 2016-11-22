@@ -1,0 +1,9 @@
+---
+- hosts: '{{ host }}'
+  name: Begin shared OCSP instance installation
+  remote_user: root
+  become: yes
+  become_method: sudo
+  become_user: root
+  roles:
+    - ocsp-shared

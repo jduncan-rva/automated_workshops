@@ -1,0 +1,10 @@
+---
+- name: Installing pki-kra packages
+  yum: name=pki-kra state=present
+
+- name: Copying pkispawn config to host
+  template: src=spawn_shared_subsystem.j2 dest=/root/spawn_shared_kra.cfg owner=root group=root mode=0644
+
+- name: Configuring KRA
+  command: /usr/sbin/pkispawn -s KRA -f /root/spawn_shared_kra.cfg
+

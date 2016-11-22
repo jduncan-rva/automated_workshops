@@ -1,0 +1,10 @@
+---
+- name: Installing pki-ocsp package
+  yum: name=pki-ocsp state=present
+
+- name: Copying pkispawn config to host
+  template: src=spawn_shared_subsystem.j2 dest=/root/spawn_ocsp.cfg owner=root group=root mode=0644
+  
+- name: Configuring OCSP
+  command: /usr/sbin/pkispawn -s OCSP -f /root/spawn_ocsp.cfg
+

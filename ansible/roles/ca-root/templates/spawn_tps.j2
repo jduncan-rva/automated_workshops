@@ -1,0 +1,11 @@
+[DEFAULT]
+pki_admin_password={{ admin_passwd }}
+pki_client_database_password={{ database_password }}
+pki_client_pkcs12_password={{ pkcs12_passwd }}
+pki_ds_password={{ ds_passwd }}
+pki_security_domain_password={{ security_domain_passwd }}
+[TPS]
+# Shared TPS instances optionally utilize their shared KRA
+# for server-side keygen
+pki_enable_server_side_keygen=True
+pki_authdb_basedn=dc=dsirlab,dc=com

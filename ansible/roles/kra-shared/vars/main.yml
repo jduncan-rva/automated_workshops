@@ -1,0 +1,10 @@
+---
+# Defaults
+rhcs_base_passwd: RedHat1!
+
+# Instance vars
+database_password: "{{ rhcs_base_passwd }}"
+pkcs12_passwd: "{{ rhcs_base_passwd }}"
+security_domain_passwd: "{{ rhcs_base_passwd }}"
+admin_passwd: "{{ rhcs_base_passwd }}"
+ds_passwd: "{{ rhcs_base_passwd }}"

@@ -1,0 +1,10 @@
+---
+- hosts: '{{ host }}'
+  name: Installing DS10
+  remote_user: root
+  become: yes
+  become_method: sudo
+  become_user: root
+  roles:
+    - rhel7-common
+    - ds-master

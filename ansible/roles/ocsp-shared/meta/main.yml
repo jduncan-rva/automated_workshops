@@ -1,0 +1,5 @@
+---
+dependencies:
+    - { role: rhel7-common }
+    - { role: ds-master }
+    - { role: ca-root }

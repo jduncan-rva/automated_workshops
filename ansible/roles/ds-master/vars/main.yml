@@ -1,0 +1,34 @@
+---
+# system
+ds10_channel: rhel-7-server-rhds-10-rpms
+ds_firewall_ports:
+  - 389/tcp
+  - 636/tcp
+  - 9830/tcp
+
+# general
+FullMachineName: "{{ ansible_fqdn }}"
+SuiteSpotUserID: nobody
+SuiteSpotGroup: nobody
+AdminDomain: "{{ ansible_domain }}"
+ConfigDirectoryAdminID: admin
+ConfigDirectoryAdminPwd: RedHat1!
+ConfigDirectoryLdapURL: "ldap://{{ ansible_fqdn }}:{{ ServerPort }}/o=NetscapeRoot"
+
+# slapd
+SlapdConfigForMC: No
+UseExistingMC: 0
+ServerPort: 389
+ServerIdentifier: dir
+Suffix: "dc={{ ansible_domain.split('.')[0] }},dc={{ ansible_domain.split('.')[1] }}"
+RootDN: cn=Directory Manager
+RootDNPwd: RedHat1!
+HashedRootDNPwd: {SSHA}07XoO858nHywxSLlLl1g9PMcm//hA4xC
+AddSampleEntries: No
+
+# admin
+DSAdminPort: 9830
+ServerIpAddress: "{{ ansible_default_ipv4.address }}"
+ServerAdminID: admin
+ServerAdminPwd: RedHat1!
+

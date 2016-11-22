@@ -1,0 +1,74 @@
+---
+cs_firewall_ports:
+  - 8443/tcp
+  - 8080/tcp
+  - 8009/tcp
+  - 8005/tcp
+
+rhcs9_channel: rhel-7-server-rhcmsys-9-rpms
+rhcs_ca_package: pki-ca
+rhcs_kra_package: pki-kra
+rhcs_tps_packages:
+  - pki-tks
+  - pki-tps
+rhcs_ocsp_package: pki-ocsp
+
+# ports
+https_port: 8443
+http_port: 8080
+ajp_port: 8009
+mgmt_port: 8005
+ldap_port: 389
+ldaps_port: 636
+
+# Defaults
+rhcs_base_passwd: RedHat1!
+
+# Instance vars
+instance_name: pki-ca
+backup_keys: True
+backup_password: "{{ rhcs_base_passwd }}"
+database_password: "{{ rhcs_base_passwd }}"
+database_purge: True
+pkcs12_passwd: "{{ rhcs_base_passwd }}"
+security_domain_name: dsirlab domain
+security_domain_passwd: {{ rhcs_base_passwd }}
+
+# Admin User Parameters
+admin_user: admin
+admin_passwd: "{{ rhcs_base_passwd }}"
+
+# Directory Server Options
+hostname: "{{ ansible_fqdn }}"
+uses_ldaps: no
+basedn: dc=dsirlab,dc=com
+binddn: cn=Directory Manager
+ds_passwd: "{{ rhcs_base_passwd }}"
+
+# Admin key settings
+admin_key_size: nistp256
+admin_key_type: ecc
+
+# SSL Server key settings
+server_key_size: nistp256
+server_key_type: ecc
+server_key_algo: SHA256withEC
+
+# Subsystem key settings
+subsystem_key_size: nistp256
+subsystem_key_type: ecc
+subsystem_key_algo: SHA256withEC
+
+# CA Signing key settings
+ca_signing_key_size: nistp256
+ca_signing_key_type: ecc
+ca_signing_key_algo: SHA256withEC
+ca_signing_algo: SHA256withEC
+
+# OCSP Signing key settings
+ocsp_signing_key_size: nistp256
+ocsp_signing_key_type: ecc
+ocsp_signing_key_algo: SHA256withEC
+ocsp_signing_algo: SHA256withEC
+
+
