@@ -1,0 +1,9 @@
+---
+- hosts: '{{ host }}'
+  name: Begin shared TPS instance
+  remote_user: root
+  become: yes
+  become_method: sudo
+  become_user: root
+  roles:
+    - tps-shared

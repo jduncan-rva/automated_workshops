@@ -1,0 +1,17 @@
+---
+# Tasks for installing and configuring DS
+- name: Subscribing to DS channel
+  command: subscription-manager repos --enable={{ ds10_channel }}
+
+- name: Installing DS packages
+  yum: name=redhat-ds state=present
+
+- name: Configure firewalld
+  firewalld: port={{ item }} permanent=true state=enabled
+  with_items: "{{ ds_firewall_ports }}"
+
+- name: Copying DS silent install ini template to host
+  template: src=setup.j2 dest=/root/dsinstall.ini owner=root group=root mode=0644
+
+- name: Configuring DS
+  command: /usr/sbin/setup-ds-admin.pl -s -f /root/dsinstall.ini

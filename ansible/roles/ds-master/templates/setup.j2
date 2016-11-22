@@ -1,0 +1,29 @@
+[General]
+FullMachineName = {{ FullMachineName }}
+SuiteSpotUserID = {{ SuiteSpotUserID }}
+SuiteSpotGroup = {{ SuiteSpotGroup }}
+AdminDomain = {{ AdminDomain }}
+ConfigDirectoryAdminID = {{ ConfigDirectoryAdminID }}
+ConfigDirectoryAdminPwd = {{ ConfigDirectoryAdminPwd }}
+ConfigDirectoryLdapURL = "ldap://{{ FullMachineName }}:{{ ServerPort }}/o=NetscapeRoot
+ServerRoot = /usr/lib64/dirsrv
+
+[slapd]
+SlapdConfigForMC = yes
+ServerPort = {{ ServerPort }}
+ServerIdentifier = {{ ServerIdentifier }}
+Suffix = {{ Suffix }}
+RootDN = {{ RootDN }}
+RootDNPwd = {{ RootDNPwd }}
+AddSampleEntries = {{ AddSampleEntries }}
+AddOrgEntries = Yes
+HashedRootDNPwd = {{ root_dn_hashed_passwd }}
+InstallLdifFile = suggest
+UseExistingMC = 0
+
+[admin]
+Port= {{ DSAdminPort }}
+ServerIpAddress= {{ ServerIpAddress }}
+ServerAdminID= {{ ServerAdminID }}
+ServerAdminPwd= {{ ServerAdminPwd }}
+SysUser = nobody

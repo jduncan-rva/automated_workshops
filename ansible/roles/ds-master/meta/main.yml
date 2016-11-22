@@ -1,0 +1,3 @@
+---
+dependencies:
+  - { role: rhel7-common }

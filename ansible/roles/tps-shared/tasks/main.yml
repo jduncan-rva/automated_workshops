@@ -1,0 +1,17 @@
+---
+- name: Installing packages for pki-tps
+  yum: name={{ item }} state=present
+  with_items: "{{ tps_packages }}"
+
+- name: Copying tks pkispawn config to host
+  template: src=spawn_shared_subsystem.j2 dest=/root/spawn_tks.cfg owner=root group=root mode=0644
+  
+- name: Configuring TKS
+  command: /usr/sbin/pkispawn -s TKS -f /root/spawn_tks.cfg
+
+- name: Copying tps pkispawn config to host
+  template: src=spawn_shared_tps.j2 dest=/root/spawn_tps.cfg owner=root group=root mode=0644
+
+- name: Configuring TPS
+  command: /usr/sbin/pkispawn -s TPS -f /root/spawn_tps.cfg
+
