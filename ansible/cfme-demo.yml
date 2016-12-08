@@ -1,4 +1,4 @@
-# Atomic 3-node kubernetes with gluster storage
+# Cloudforms demo quick start
 # - jduncan
 
 - hosts: laptop
